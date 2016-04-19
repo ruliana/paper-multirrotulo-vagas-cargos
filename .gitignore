@@ -13,6 +13,7 @@
 *.rtf
 *.gz
 *.tmp
+*.out
 *.upa
 *.upb
 *.xref

@@ -1,13 +1,18 @@
 \documentclass[runningheads,a4paper]{llncs}
 
-\usepackage[american,brazilian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
 \usepackage{hyphenat}
 \hyphenation{pro-ble-ma}
 
 \usepackage{amssymb}
+\usepackage{amsmath}
 \usepackage{array}
+
+\usepackage{multirow}
+\newcommand{\breakcell}[2][c]{%
+	\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
 %better font, similar to the default springer font
 %cfr-lm is preferred over lmodern. Reasoning at http://tex.stackexchange.com/a/247543/9075
@@ -22,6 +27,7 @@ qt=false%
 %\usepackage{mathptmx}
 
 \usepackage{graphicx}
+\graphicspath{ {images/} }
 
 %extended enumerate, such as \begin{compactenum}
 \usepackage{paralist}
@@ -133,13 +139,14 @@ pdfstartview=Fit
 \input glyphtounicode.tex
 \pdfgentounicode=1
 
-\title{Aprendizado Multirrótulo}
+\title{Aprendizado Multirrótulo Aplicado a Predição de Ocupações para Oportunidades de Trabalho}
 %If Title is too long, use \titlerunning
-%\titlerunning{Short Title}
+\titlerunning{Aprendizado Multirrótulo}
 
 %Single insitute
-\author{Ronie Uliana}
-\author{Leandro Nunes de Castro}
+\author{
+	Ronie Uliana e Leandro Nunes de Castro
+}
 %If there are too many authors, use \authorrunning
 %\authorrunning{First Author et al.}
 \institute{Universidade Presbiteriana Mackenzie}
@@ -169,17 +176,91 @@ Esse trabalho é um estudo de caso que apresenta os resultados da aplicação de
 
 \keywords{multirrótulo,classificação,ensemble,contratação,recursos humanos}
 
-\section{Introdução}\label{sec:intro}
+\section{Introdução} \label{sec:intro}
 
-O título anunciado em uma oportunidade de trabalho tem grande influência no tipo de pessoa que a oportunidade atrai. Um vaga com o título "Engenheiro de Custos" atrai principalmente engenheiros civis, já uma "Engenheiro Civil Júnior" tem grandes chances de atrair pessoas que atualmente são estagiários de Engenharia Civil.
+O título anunciado em uma oportunidade de trabalho tem grande influência no tipo de pessoa que a oportunidade atrai. Um vaga com o título \enquote{Engenheiro de Custos} atrai principalmente engenheiros civis, já uma intitulada \enquote{Engenheiro Civil Júnior} tem grandes chances de atrair pessoas que atualmente são estagiários de Engenharia Civil.
 
-Esse trabalho usa uma base de dados de mercado para tentar prever quais ocupações são atraídas pelo título da vaga.
+Esse trabalho usa uma base de dados de mercado para tentar prever quais ocupações são atraídas pelo título da vaga. Ela acumula informação de 16 anos de uma empresa que possui um produto para o mercado de Recrutamento e Seleção e possui pouco menos de meio milhão de oportunidades de trabalho.
 
-A próxima seção oferece uma breve revisão das pesquisas relevantes na área de classificação multirrótulo, com maior detalhamento nas técnicas selecionadas para o trabalho.
+Os resultados mostram que é possível prever bastante bem quais são as ocupações para essas oportunidades utilizando somente o título anunciado. A intenção é incorporar o modelo gerado nesse trabalho para ajudar os recrutadores a criarem oportunidades mais assertivas.
 
-A seguir é apresentada uma justificativa para a escolha do método junto com um resumo dos processos empregados para limpeza e seleção dos dados.
+A próxima seção define formalmente os problemas de classificação e ordenação multirrótulo, nela também é apresentada a notação usada no restante do trabalho.
 
-As duas próximas seções detalham a aplicação do método e os resultados obtidos. Finalmente a última seção faz considerações sobre o trabalho, destacando pontos de interesse e limitações dos resultados obtidos.
+As seções \ref{sec:revisao} e \ref{sec:refteo} apresentam uma breve revisão das pesquisas relevantes na área de classificação multirrótulo, com maior detalhamento nas técnicas selecionadas para o trabalho. A seguir, nas seções \ref{sec:justificativa} e \ref{sec:preparacao}, é apresentada uma justificativa para a escolha do método e  um resumo dos processos empregados para limpeza e seleção dos dados.
+
+A seção \ref{sec:aplicacao} detalha aplicação do método, enquanto a seção \ref{sec:resultados} apresenta os resultados obtidos. Finalmente a última seção \ref{sec:conclusao} faz considerações sobre o trabalho, destacando pontos de interesse e limitações dos resultados obtidos.
+
+\section{Definição Formal do Problema} \label{sec:formal}
+
+Chamamos de $\mathcal{X}$ o conjunto de registros e de $\mathcal{Y}$ o conjunto com todos os rótulos possíveis. O conjunto potência $2^{\mathcal{Y}}$ é o conjunto com todos os subconjuntos possíveis de $\mathcal{Y}$.
+
+Define-se então, formalmente, o problema de classificação multirrótulo como encontrar $h : \mathcal{X} \to 2^\mathcal{Y}$ , ou seja, encontrar a função que, dado um registro, encontra o conjunto de rótulos relacionados a ele.
+
+Usando a mesma notação, define-se a tarefa de ordenação multirrótulo como encontrar $f : \mathcal{X} \to \mathbb{R}$ (ou $f : \mathcal{X} \to \mathbb{Z}$) a função que, dado um rótulo e um registro, retorna um valor que representa a confiança de que aquele rótulo seja correto de fato para o registro.
+
+Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matematica-rotulos} e \ref{tab:matematica-funcoes} contêm as definições matemáticas usadas no restante do trabalho.
+
+\begin{table}
+	\centering
+	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+		\hline
+		\multicolumn{2}{|c|}{\textit{Registros ou vetores de atributos}} \\
+		\hline
+		$\mathcal{X} = \mathbb{R}^d$ (ou $\mathcal{X} = \mathbb{Z}^d$) & $\mathcal{X}$ é o conjunto que abrange todos os registros, também pode ser entendido como o conjunto de todos os vetores de atributos (cada vetor é um registro). \\
+		\hline
+		$\mathcal{X} = \{\vec{x_1}, \vec{x_2}, \dots, \vec{x_n}\}$ & Mesma definição de $\mathcal{X}$ acima, mas enumerando seus elementos. \\
+		\hline
+		$\vec{x_i} \in \mathcal{X}$ & $\vec{x_i}$ representa um registro ou um vetor de atributos. \\
+		\hline
+		$d \in \mathbb{N}_{>0}$ & $d$ é o número de atributos nos registros, também pode ser compreendido como o número de dimensões nos vetores de atributos. \\
+		\hline
+		$\vec{x_i} = \{x_{i1}, x_{i2}, \dots, x_{id}\}$ & $\vec{x_i}$ representa um único registro do conjunto ou um vetor com $d$ atributos. No caso, $x_{ij}$ representa o valor de um único atributo. \\
+		\hline
+		$n = |\mathcal{X}|$ & $n$ é o número total de registros no problema. \\
+		\hline
+	\end{tabular}
+	\caption{Notação usada para registros}
+	\label{tab:matematica-registros}
+\end{table}
+
+\begin{table}
+	\centering
+	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+		\hline	
+		\multicolumn{2}{|c|}{\textit{Rótulos e conjuntos de rótulos}} \\
+		\hline
+		$\mathcal{Y} = \{y_1, y_2, \dots, y_q\}$ & $\mathcal{Y}$ é o conjunto com todos os rótulos possíveis para o problema. \\
+		\hline
+		$y_i \in \mathcal{Y}$ & $y_i$ representa um único rótulo. \\
+		\hline
+		$q = |\mathcal{Y}|$ & $q$ é o número de rótulos possíveis no problema. \\
+		\hline
+		$2^\mathcal{Y}$ & $2^\mathcal{Y}$ representa todos os subconjuntos possíveis de rótulos no problema (conjunto potência). \\
+		\hline
+		$L = {Y_1, Y_2, \dots, Y_n}$ & $L$ é a família de conjunto de rótulos, ou seja, todos os conjuntos de rótulos encontrados no problema.\\
+		\hline
+		$Y_i \subseteq \mathcal{Y} \wedge Y_i \in L$ & $Y_i$ é o conjunto de rótulos associado ao registro $x_i$. \\
+		\hline
+	\end{tabular}
+	\caption{Notação usada para os rótulos}
+	\label{tab:matematica-rotulos}
+\end{table}
+
+\begin{table}
+	\centering
+	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+		\hline
+		\multicolumn{2}{|c|}{\textit{Funções}} \\
+		\hline
+		$h : \mathcal{X} \to 2^\mathcal{Y}$ & $h$ é a função que mapeia os registros em subconjuntos de rótulos. Encontrar $h$ é a tarefa principal da \textbf{classificação multirrótulo}. \\
+		\hline
+		$f : \mathcal{X} \times \mathcal{Y} \to \mathbb{R}$ & $f$ é a função que mapeia os registros e rótulos em um número que representa a confiança que aquele é um rótulo apropriado para o registro. Encontrar $f$ é a tarefa principal da \textbf{ordenação multirrótulo}. \\
+		\hline
+	\end{tabular}
+	\caption{Funções de classificação e ordenação}
+	\label{tab:matematica-funcoes}
+\end{table}	
+
 
 \section{Revisão Bibliográfica}\label{sec:revisao}
 Três trabalhos fornecem uma visão geral da área e fazem uma ampla revisão bibliográfica do assunto. Em \cite{Tsoumakas2007-cw}, os autores categorizam as soluções para aprendizado multirrótulo em duas:
@@ -317,65 +398,6 @@ Explora-se a correlação entre conjuntos maiores de rótulos \cite{Read2008-bt}
 
 [TODO: Colocar exemplos para cada um]
 
-\section{Definição Formal do Problema}\label{sec:deformal}
-
-Seguindo a notação formal proposta por \cite{Zhang2014-be}, apresentada abaixo, chamamos de $\mathcal{X}$ o conjunto de registros e de $\mathcal{Y}$ o conjunto total de rótulos. O conjunto potência $2^{\mathcal{Y}}$ é o conjunto com todos os subconjuntos possíveis de $\mathcal{Y}$.
-
-Define-se então, formalmente, o problema de classificação multirrótulo como encontrar $h : \mathcal{X} \to 2^\mathcal{Y}$ , ou seja, encontrar a função que, dado um registro, encontra o conjunto de rótulos relacionados a um registro.
-
-Usando a mesma notação, define-se a tarefa de ordenação multirrótulo como encontrar $f : \mathcal{X} \to \mathbb{R}$ (ou $f : \mathcal{X} \to \mathbb{Z}$) ou seja, a função que, dado um rótulo e um registro, retorna um valor que representa a confiança de que aquele rótulo seja correto de fato para o registro.
-
-As tabelas abaixo contêm as definições matemáticas usadas no restante do trabalho.
-
-\begin{center}
-\begin{tabular}{| c | m{9cm} |}
-	\hline
-	\multicolumn{2}{|c|}{\textit{Registros ou vetores de atributos}} \\
-	\hline
-	$\mathcal{X} = \mathbb{R}^d$ & $\mathcal{X}$ é o conjunto que abrange todos os registros, também pode ser entendido como o conjunto de todos os vetores de atributos (cada vetor é um registro). \\
-	\hline
-	$\mathcal{X} = {x_1, x_2, \dots, x_n}$ & Mesma definição de $\mathcal{X}$ acima, mas enumerando seus elementos. \\
-	\hline
-	$x_i \in \mathcal{X}$ & $x_i$ representa um registro ou um vetor de atributos. \\
-	\hline
-	$d \in \mathbb{N}_{>0}$ & $d$ é o número de atributos nos registros, também pode ser compreendido como o número de dimensões nos vetores de atributos. \\
-	\hline
-	$x_i = \{x_{i1}, x_{i2}\}, \dots, x_{id}\}$ & $x_i$ representa um único registro do conjunto ou um vetor com $d$ atributos. No caso, $x_{ij}$ representa o valor de um único atributo. \\
-	\hline
-	$n = |\mathcal{X}|$ & $n$ é o número total de registros no problema. \\
-	\hline
-\end{tabular}
-\end{center}
-
-\begin{center}
-\begin{tabular}{| c | m{9cm} |}
-	\hline	
-	\multicolumn{2}{|c|}{\textit{Rótulos e conjuntos de rótulos}} \\
-	\hline
-	$\mathcal{Y} = \{y_1, y_2, \dots, y_q\}$ & $\mathcal{Y}$ é o conjunto com todos os rótulos possíveis para o problema. \\
-	\hline
-	$y_i \in \mathcal{Y}$ & $y_i$ representa um rótulo. \\
-	\hline
-	$q = |\mathcal{Y}|$ & $q$ é o número de rótulos possíveis no problema. \\
-	\hline
-	$2^\mathcal{Y}$ & $2^\mathcal{Y}$ representa todos os subconjuntos possíveis de rótulos no problema. \\
-	\hline
-	$Y_i \subseteq \mathcal{Y}$ & $Y_i$ é o subconjunto de rótulos associado ao registro $x_i$ \\
-	\hline
-\end{tabular}
-\end{center}
-
-\begin{center}
-\begin{tabular}{| c | m{9cm} |}
-	\hline
-	\multicolumn{2}{|c|}{\textit{Funções}} \\
-	\hline
-	$h : \mathcal{X} \to 2^\mathcal{Y}$ & $h$ é a função que mapeia os registros em subconjuntos de rótulos. Encontrar $h$ é a tarefa principal da classificação multirrótulo. \\
-	\hline
-	$f : \mathcal{X} \times \mathcal{Y} \to \mathbb{R}$ & $f$ é a função que mapeia os registros e rótulos em um número que representa a confiança que aquele é um rótulo apropriado para o registro. Encontrar $f$ é a tarefa principal da ordenação multirrótulo. \\
-	\hline
-\end{tabular}
-\end{center}	
 
 \section{Transformação do Problema}\label{sec:transprob}
 
@@ -538,61 +560,176 @@ $$(x_i, \max_{\forall q \in Y_i} freq(q))$$
 
 \subsection{Transformação por Ignorar Multirrótulo}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introdução (Exemplo)}\label{sec:introex}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\blindtext\todo{Refine me}
+[TODO Desculpe, mas ainda não acabei de copiar o conteúdo do outro documento, Professor! Estou trabalhando nisso :p]
 
-Winery~\cite{Winery} is graphical \commentontext{modeling}{modeling with one \enquote{l}, because of AE} tool.
+\section{Método Aplicado} \label{sec:justificativa}
 
-\begin{figure}
-Simple Figure
-\caption{Simple Figure}
-\label{fig:simple}
-\end{figure}
+O método escolhido para o trabalho foi o de \textit{Ensemble of Pruned Sets} \cite{Read2008-bt}.
+
+Para esse caso, é necessário um método que tenha bons resultados e que possa trabalhar com um grande conjunto de rótulos e de registros. Vários deles se encaixam nesses requisitos, mas dois chamam especial atenção.
+
+O método RAkEL \cite{Tsoumakas2007-wm} é referência na área, sendo um dos mais citados em trabalhos de aprendizado multirrótulo. O método usando \textit{Ensemble Pruned Sets} baseia-se no RAkEL propondo uma abordagem mais restrita e computacionalmente mais econômica.
+
+Ambos os métodos foram considerados, mas o RAkEL foi descartado nas primeira fases da análise pelas características do problema.
+
+O conjunto de rótulos $\mathcal{Y}$ inicial possui cerca de 485.588 rótulos distintos. A aplicação do método RAkEL \cite{Tsoumakas2007-wm} necessita de 152.227 classificadores diferentes para $k=3$, o que é bastante custoso para o caso presente.
+
+No entanto, pela natureza do problema, é esperado que os conjuntos de rótulos possuam alta repetição. Um oportunidade de trabalho para "Enfermeiro" irá atrair frequentemente o mesmo conjunto de ocupações "enfermeiro, auxiliar de enfermagem, técnico em enfermagem", por outro lado, conjuntos muito díspares são extremamente incomuns, como "engenheiro civil, enfermeiro".
+
+Essa intuição baseada no conhecimento do domínio foi confirmada ao se aplicar a poda de conjuntos. Apenas 268 conjuntos distintos de rótulos são responsáveis por 226.084 registros.
+
+\section{Preparação dos dados} \label{sec:preparacao}
+
+Como o trabalho parte de um conjunto de dados "selvagem", ou seja, não limpo nem normalizado [TODO ou seria melhor dizer "sem trabalhos prévios sobre ele"], as etapas preparatórias são de grande importância. Uma limpeza muito restritiva pode remover dados importantes, já uma muito permissiva pode deixar ruídos que dificultem a convergência de resultados.
+
+O conjunto original possui 456.861 oportunidades de trabalho, porém nem todas possuem relevância para o trabalho. Dois são principais problemas desse conjunto.
+
+O primeiro é que muitas oportunidades possuem uma quantidade pequena de pessoas participantes, ou mesmo nenhum. Isso ocorre em cidades pequenas, em ocupações muito especializadas, quando a redação do título possui erro ou é muito vaga. Essas oportunidades de baixa atratividade foram removidas da análise para evitar os dois últimos problemas. Isso provoca efeitos colaterais, ocupações mais especializadas não aparecem na análise e a variedade de rótulos diminui.
+
+Foram consideradas apenas oportunidades de trabalho com mais de \textbf{50} participantes.
+
+O segundo problema é a variedade de ocupações do participantes, não é incomum uma oportunidade com centenas pessoas possuir também centenas de ocupações distintas. Isso acontece pois não há restrição para que alguém participe de uma vaga, um pintor pode participar de uma oportunidade de arquiteto.
+
+Apesar de comum, é pequeno o número de pessoas em uma ocupação muito divergente da oportunidade, ou seja, são poucos os pintores que participam de uma oportunidade de arquitetura. Por isso, em cada registro, foram removidas as ocupações com um número relativamente pequeno de participantes. Eventualmente, oportunidades com uma dispersão muito grande de ocupações acabam ficando sem rótulos depois que essa restrição é aplicada, registros sem rótulos como esses são removidos do treinamento.
+
+Foram consideradas apenas ocupações que possuem mais de \textbf{5\%} de participantes dentro da oportunidade.
 
 \begin{table}
-\caption{Simple Table}
-
-\label{tab:simple}
-Simple Table
+	\centering
+	\begin{tabular}{| c | c | c |}
+		\hline
+		& \textbf{Antes} & \textbf{Depois} \\
+		\hline
+		$|\mathcal{X}|$ & 377.651 & 226.084 \\
+		\hline
+		$|\mathcal{Y}|$ & 485.588 & 1.907 \\
+		\hline
+		Cardinalidade & 146,22 & 1,92 \\
+		\hline
+		Densidade & 0,0003 & 0,001 \\
+		\hline
+		Diversidade & 0,0003 & 0,001 \\
+		\hline
+	\end{tabular}
+	\caption{Números antes e depois da preparação}
+	\label{tab:preparacao}
 \end{table}
 
-cref Demonstration: Cref at beginning of sentence, cref in all other cases.
+Após aplicadas as restrições, os títulos da oportunidades são transformado em \textit{tokens} usando a seguinte sequência de passos.
 
-\Cref{fig:simple} shows a simple fact, although \cref{fig:simple} could also show something else.
+\begin{enumerate}
+	\item Remoção de palavras que contenham números ou símbolos;
+	\item Remoção de \textit{stopwords};
+	\item Expansão de abreviações comuns (jr, júnior; pl, pleno; sr, sênior);
+	\item Remoção de acentuação;
+	\item Extração do radical das palavras (\textit{stemming})
+\end{enumerate}
 
-\Cref{tab:simple} shows a simple fact, although \cref{tab:simple} could also show something else.
+Essa base de dados já passa por uma correção ortográfica manual no momento da publicação das oportunidades, por isso não é usado um corretor ortográfico automático na sequência de preparação.
 
-\Cref{sec:intro} shows a simple fact, although \cref{sec:intro} could also show something else.
+Alguma poucas abreviações comuns específicas do domínio também são expandidas para seu nome completo.
 
-Brackets work as designed:
-<test>
+Na etapa seguinte é aplicada a poda de conjuntos \cite{Read2008-bt}. Nela, os rótulos mais frequentes são selecionados e cada conjunto deles se torna uma classe única, transformando o problema multirrótulo em multiclasse. Esse processo resultou em \textbf{268} classes distintas para o treinamento.
 
-The symbol for powerset is now correct: $\powerset$ and not a Weierstrass p ($\wp$).
+\section{Aplicação do Método} \label{sec:aplicacao}
 
-\begin{inparaenum}
-\item All these items...
-\item ...appear in one line
-\item This is enabled by the paralist package.
-\end{inparaenum}
+O processo de poda dos conjuntos de rótulos acontece em três fases, na primeira, encontramos os conjuntos mais frequentes de rótulos; na segunda, separamos os registros que se encaixam nesse grupo; na terceira, aplicamos uma estratégia para resgatar registros que ficaram de fora da segunda fase. O objetivo é criar o conjunto de treinamento $\mathcal{T} = \{(x_1,Y_1), (x_2, Y_2), \dots, (x_n, Y_n)\}$ a partir dos conjuntos de rótulos mais frequentes.
 
-``something in quotes'' using plain tex or use \enquote{the enquote command}.
+Seja $\mathcal{F}$ a família de conjunto de rótulos mais frequentes acima de uma certa repetição $r$:
 
-\section{Conclusion and Outlook}
+$$
+\mathcal{F} = \{Y | Y \in L; freq(L, Y) \leq r\}
+$$
 
-\subsubsection*{Acknowledgments}
-...
+Onde $freq : \mathcal{Y} \times \mathcal{Y} \to \mathbb{N}$ retorna o número de vezes que $Y$ ocorre em $L$.
 
-In the bibliography, use \texttt{\textbackslash textsuperscript} for ``st'', ``nd'', ...:
-E.g., \enquote{The 2\textsuperscript{nd} conference on examples}.
-When you use \href{http://www.jabref.org}{JabRef}, you can use the clean up command to achieve that.
+O conjunto de treino $\mathcal{T'}$ é formado por todos os registros onde seus rótulos são encontrados nos rótulos mais frequentes $Y \in F$. Cria-se outro conjunto $\mathcal{T''}$ através de uma estratégia de \textit{cópia} modificada para os registros que ficaram de fora de $\mathcal{T'}$. O conjunto final de treino $\mathcal{T}$ é composto pela união dos dois conjuntos anteriores.
+
+Para formar $\mathcal{T''}$, selecionamos um registro para cada vez que um subconjunto de seus rótulos puderem ser encontrados no conjunto de frequentes $\mathcal{F}$.
+
+\begin{align*}
+\mathcal{T'} &= \{(\vec{x_i}, Y_i) | Y_i \in \mathcal{F}\} \\
+\mathcal{T''} &=  \{(\vec{x_i}, Y') | (\vec{x_i}, Y_i) \notin \mathcal{T'}; Y' \in \mathcal{F}; Y' \subset Y_i \} \\
+\mathcal{T} &=  \mathcal{T'} \cup \mathcal{T''}
+\end{align*}
+
+Depois de criado o novo conjunto de treino $\mathcal{T}$ transforma-se cada conjunto de rótulos encontrado em $\mathcal{F}$ em um rótulo único. A partir desse ponto, o problema se transforma em um problema de classificação multiclasse.
+
+É usado então um \textit{ensemble} de classificadores binários\footnote{Foram usados classificadores SVM (Support Vector Machine)} para selecionar quais rótulos fazem parte da resposta. A maneira como é montado o conjunto resultado é diferente do proposto originalmente no modelo de \textit{Pruned Sets} \cite{Read2008-bt}. Nele, apenas o classificador com melhor resultado retorna sua predição\footnote{Esse modelo é conhecido como \textit{one-vs-rest} \cite{Bishop2006-vm}}, nesse, cada classificador com retorno positivo soma seus rótulos associados a um multiconjunto (\textit{bag} ou \textit{multiset}) que será retornado como resposta da classificação. Posteriormente, um limite de corte é estabelecido para eliminar rótulos menos votados.
+
+Em testes preliminares, essa modificação apresentou melhores resultados, permitindo que o modelo gerasse como resposta conjuntos de rótulos que não estavam no conjunto de treino.
+
+Digamos, por exemplo, que possuímos apenas dois classificadores, um associado ao conjunto de rótulos $\{magro, alto\}$ e outro associado a $\{magro, baixo\}$. Se ao passar por ambos os classificadores o registro tiver retorno positivo apenas no primeiro, a resposta resultante será $\{(magro, 1), (alto, 1)\}$. Se os dois classificadores retornarem positivo, a resposta final seria $\{(magro, 2), (alto, 1), (baixo, 1)\}$.
+
+Uma função $t$ é usada para restringir o conjunto resposta aos rótulos mais relevantes. No exemplo anterior, se $t$ considerar apenas rótulos que 2 ou mais classificadores concordem, o conjunto resultante passa a ser apenas $\{magro\}$.
+
+Para ampliar esse efeito, o modelo é replicado 10 vezes para se criar um novo \textit{ensemble}. Cada um é treinado por $2/3$ dos dados e o mesmo método para geração dos conjuntos resposta é aplicado para o \textit{ensemble} como um todo.
+
+\section{Resultados} \label{sec:resultados}
+
+O modelo foi feito utilizando-se porções menores do conjunto total de dados para que o desenvolvimento pudesse ser feito em ciclos rápidos. Foram usadas massas aleatórias com 1\%, 5\% e 10\% do total.
+
+Após o desenvolvimento do modelo, toda a massa de dados é usada para treinamento e validação. A validação do modelo é feita usando-se a técnica de \textit{cross-validation} \cite{Kohavi95-as} usando o conjunto dividido em \textbf{5} partes.
+
+Os resultados são avaliados por métricas que possuem sentido para o domínio, no caso, prever ocupações atraídas para uma oportunidade de trabalho. A primeira métrica é a precisão, nesse contexto ela responde a pergunta "quantas ocupações foram preditas corretamente?". Outra métrica relevante é a revocação (\textit{recall}), no domínio proposto ela responde a pergunta "quantas ocupações deixaram de ser preditas?". Finalmente, o \textit{F1 Score} é uma medida geral de quão bem as duas perguntas anteriores são respondidas.
+
+Em problemas multirrótulo cada registro do conjunto de teste tem suas próprias métricas, para obter uma visão geral de quão bem o modelo se comporta basta calcular as medidas centrais de toda a amostra.
+
+\begin{align*}
+Precisão_i(h) &= \frac{|Y_i \cap h(x_i)|}{|h(x_i)|} \\
+Revocação_i(h) &= \frac{|Y_i \cap h(x_i)|}{|Y_i|} \\
+F1_i(h) &= 2 \cdot \frac{Precisão_i(h) \cdot Revocação_i(h)}{Precisão_i(h) + Revocação_i(h)} 
+\end{align*}
+
+Como a distribuição do resultado não é regular, são utilizados o 1º, 2º e 3º quartis como medidas de adequação.
+
+\begin{table}
+	\centering
+	\begin{tabular}{| c | c | c | c |}
+		\hline
+		& & \breakcell{1 Classificador\\Limite 2} & \breakcell{10 Classificadores\\Limite 18} \\
+		\hline
+		\multirow{3}{*}{Precisão} & 1º Quartil & 0,33 & 0,50 \\
+		& 2º Quartil & 0,50 & 1,00 \\
+		& 3º Quartil & 1,00 & 1,00 \\
+		\hline
+		\multirow{3}{*}{Revocação} & 1º Quartil & 0,50 & 0,50 \\
+		& 2º Quartil & 1,00 & 1,00 \\
+		& 3º Quartil & 1,00 & 1,00 \\
+		\hline
+		\multirow{3}{*}{F1 Score} & 1º Quartil & 0,50 & 0,50 \\
+		& 2º Quartil & 0,67 & 0,67 \\
+		& 3º Quartil & 0,80 & 1,00 \\
+		\hline
+	\end{tabular}
+	\caption{Resultados com 1 e 10 classificadores e os melhores limites}
+	\label{tab:resultado}
+\end{table}
+
+É possível observar na tabela \ref{tab:resultado} que a utilização de 10 classificadores melhora a precisão significativamente, mas possui pouco efeito na revocação e no \textit{F1 Score}. O tempo de treinamento para os 10 classificadores é obviamente 10 vezes maior do que o de um único classificador, apesar disso, como o treinamento nesse domínio será feito anualmente, o ganho em precisão paga o tempo extra.
+
+Outro ponto de atenção é que a distribuição dos resultados não segue a curva normal, como é possível observar na figura \ref{fig:medicoes}, a maior parte do conjunto de teste se concentra nas pontuações mais altas das medições.
+
+\begin{figure}
+	\includegraphics[scale=0.7]{medicoes}
+	\caption{Distribuição das medições}
+	\label{fig:medicoes}
+\end{figure}
+
+
+\section{Conclusão} \label{sec:conclusao}
+
+[TODO]
+\begin{itemize}
+	\item Passar a definição formal do problema como segunda seção!
+	\item Rodar cross-validation com todos os dados, atualizar a tabela e refazer os gráfico. É improvável um resultado muito diferente, então (espero) que eu não tenha que modificar o texto.
+	\item Melhorar os gráficos. Achei que ficaram muito feios =/
+	\item Observação: os resultados são intuitivamente muito bons mesmo quando a precisão não parece boa. Isso ainda precisa ser confirmado.
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bibliographystyle{splncs03}
 \bibliography{paper}
-
-All links were last followed on October 5, 2014.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
