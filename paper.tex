@@ -174,7 +174,7 @@ Insitute 2\\
 Esse trabalho é um estudo de caso que apresenta os resultados da aplicação de classificação multirrótulo em um problema de recrutamento de pessoas. O trabalho tenta prever quais ocupações serão atraídas para uma oportunidade de trabalho dependendo exclusivamente do título anunciado.
 \end{abstract}
 
-\keywords{multirrótulo,classificação,ensemble,contratação,recursos humanos}
+\keywords{multirrótulo,classificação,\textit{ensemble},contratação,recursos humanos}
 
 \section{Introdução} \label{sec:intro}
 
@@ -184,7 +184,7 @@ Esse trabalho usa uma base de dados de mercado para tentar prever quais ocupaç�
 
 Os resultados mostram que é possível prever bastante bem quais são as ocupações para essas oportunidades utilizando somente o título anunciado. A intenção é incorporar o modelo gerado nesse trabalho para ajudar os recrutadores a criarem oportunidades mais assertivas.
 
-A próxima seção define formalmente os problemas de classificação e ordenação multirrótulo, nela também é apresentada a notação usada no restante do trabalho.
+A próxima seção \ref{sec:formal} define formalmente os problemas de classificação e ordenação multirrótulo, nela também é apresentada a notação matemática usada no restante do trabalho. Logo a seguir a seção \ref{sec:metricas} apresenta métricas usadas para caracterização dos problemas de aprendizado multirrótulo, ao invés de uma lista extensa ela é restrita a três das métricas mais relevantes para o problema tratado nesse trabalho.
 
 As seções \ref{sec:revisao} e \ref{sec:refteo} apresentam uma breve revisão das pesquisas relevantes na área de classificação multirrótulo, com maior detalhamento nas técnicas selecionadas para o trabalho. A seguir, nas seções \ref{sec:justificativa} e \ref{sec:preparacao}, é apresentada uma justificativa para a escolha do método e  um resumo dos processos empregados para limpeza e seleção dos dados.
 
@@ -194,25 +194,25 @@ A seção \ref{sec:aplicacao} detalha aplicação do método, enquanto a seção
 
 Chamamos de $\mathcal{X}$ o conjunto de registros e de $\mathcal{Y}$ o conjunto com todos os rótulos possíveis. O conjunto potência $2^{\mathcal{Y}}$ é o conjunto com todos os subconjuntos possíveis de $\mathcal{Y}$.
 
-Define-se então, formalmente, o problema de classificação multirrótulo como encontrar $h : \mathcal{X} \to 2^\mathcal{Y}$ , ou seja, encontrar a função que, dado um registro, encontra o conjunto de rótulos relacionados a ele.
+Define-se então, formalmente, o problema de classificação multirrótulo como encontrar $h : \mathcal{X} \to 2^\mathcal{Y}$ , ou seja, encontrar a função que, dado um registro, encontra o conjunto de rótulos que mais provavelmente caracterizam o registro.
 
-Usando a mesma notação, define-se a tarefa de ordenação multirrótulo como encontrar $f : \mathcal{X} \to \mathbb{R}$ (ou $f : \mathcal{X} \to \mathbb{Z}$) a função que, dado um rótulo e um registro, retorna um valor que representa a confiança de que aquele rótulo seja correto de fato para o registro.
+Usando a mesma notação, define-se a tarefa de ordenação multirrótulo como encontrar $f : \mathcal{X} \to \mathbb{R}$ (ou $f : \mathcal{X} \to \mathbb{Z}$) a função que, dado um rótulo e um registro, retorna um valor que representa a confiança de que aquele rótulo seja correto para o registro.
 
 Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matematica-rotulos} e \ref{tab:matematica-funcoes} contêm as definições matemáticas usadas no restante do trabalho.
 
 \begin{table}
 	\centering
-	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+	\begin{tabular}{| >{\centering}p{4cm} | m{8cm} |}
 		\hline
 		\multicolumn{2}{|c|}{\textit{Registros ou vetores de atributos}} \\
 		\hline
-		$\mathcal{X} = \mathbb{R}^d$ (ou $\mathcal{X} = \mathbb{Z}^d$) & $\mathcal{X}$ é o conjunto que abrange todos os registros, também pode ser entendido como o conjunto de todos os vetores de atributos (cada vetor é um registro). \\
+		$\mathcal{X} = \mathbb{R}^d \vee \mathcal{X} = \mathbb{Z}^d$ & $\mathcal{X}$ é o conjunto que abrange todos os registros, também pode ser entendido como o conjunto de todos os vetores de atributos (cada vetor é um registro). \\
+		\hline
+		$d \in \mathbb{N}_{>0}$ & $d$ é o número de atributos nos registros, também pode ser compreendido como o número de dimensões nos vetores de atributos. \\
 		\hline
 		$\mathcal{X} = \{\vec{x_1}, \vec{x_2}, \dots, \vec{x_n}\}$ & Mesma definição de $\mathcal{X}$ acima, mas enumerando seus elementos. \\
 		\hline
 		$\vec{x_i} \in \mathcal{X}$ & $\vec{x_i}$ representa um registro ou um vetor de atributos. \\
-		\hline
-		$d \in \mathbb{N}_{>0}$ & $d$ é o número de atributos nos registros, também pode ser compreendido como o número de dimensões nos vetores de atributos. \\
 		\hline
 		$\vec{x_i} = \{x_{i1}, x_{i2}, \dots, x_{id}\}$ & $\vec{x_i}$ representa um único registro do conjunto ou um vetor com $d$ atributos. No caso, $x_{ij}$ representa o valor de um único atributo. \\
 		\hline
@@ -225,7 +225,7 @@ Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matemati
 
 \begin{table}
 	\centering
-	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+	\begin{tabular}{| >{\centering}p{4cm} | m{8cm} |}
 		\hline	
 		\multicolumn{2}{|c|}{\textit{Rótulos e conjuntos de rótulos}} \\
 		\hline
@@ -237,7 +237,7 @@ Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matemati
 		\hline
 		$2^\mathcal{Y}$ & $2^\mathcal{Y}$ representa todos os subconjuntos possíveis de rótulos no problema (conjunto potência). \\
 		\hline
-		$L = {Y_1, Y_2, \dots, Y_n}$ & $L$ é a família de conjunto de rótulos, ou seja, todos os conjuntos de rótulos encontrados no problema.\\
+		$L = {Y_1, Y_2, \dots, Y_n}$ & $L$ é o subconjunto de $2^\mathcal{Y}$ que contém apenas os conjuntos de rótulos encontrados no problema. \\
 		\hline
 		$Y_i \subseteq \mathcal{Y} \wedge Y_i \in L$ & $Y_i$ é o conjunto de rótulos associado ao registro $x_i$. \\
 		\hline
@@ -248,7 +248,26 @@ Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matemati
 
 \begin{table}
 	\centering
-	\begin{tabular}{| >{\centering\arraybackslash}p{4cm} | m{8cm} |}
+	\begin{tabular}{| >{\centering}p{6cm} | m{6cm} |}
+		\hline	
+		\multicolumn{2}{|c|}{\textit{Conjuntos de treino e teste}} \\
+		\hline
+		$\mathcal{D} = \{(\vec{x_1}, Y_1), (\vec{x_2}, Y_2), \dots, (\vec{x_1}, Y_n)\}$ & $\mathcal{D}$ é o conjunto com todos os registros do problema com seus respectivos conjuntos de rótulos. \\
+		\hline
+		$\mathcal{T} = \{(\vec{x_i}, trans(Y_i)) | cort(Y_i) \}$ & $\mathcal{T}$ é o conjunto usado para treinamento, dependendo da estratégia ou do algoritmo usado ele é menor que o conjunto total ou então possui seus rótulos transformados. \\
+		\hline
+		$trans : 2^\mathcal{Y} \to \mathcal{Y'}$ & $trans$ é uma função que transforma um conjunto de rótulos em um rótulo único. $\mathcal{Y'}$ é o conjunto de rótulos transformados. \\
+		\hline
+		$cort : 2^\mathcal{Y} \to \{Verdadeiro, Falso\}$ & $cort$ é uma função que retorna Verdadeiro se um conjunto de rótulo deve integrar o conjunto de treinamento e Falso caso contrário. \\
+		\hline
+	\end{tabular}
+	\caption{Conjuntos de treino e teste}
+	\label{tab:matematica-dominio}
+\end{table}
+
+\begin{table}
+	\centering
+	\begin{tabular}{| >{\centering}p{4cm} | m{8cm} |}
 		\hline
 		\multicolumn{2}{|c|}{\textit{Funções}} \\
 		\hline
@@ -261,6 +280,15 @@ Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matemati
 	\label{tab:matematica-funcoes}
 \end{table}	
 
+\section{Métricas para Caracterização do Problema} \label{sec:metricas}
+
+As três métricas a seguir são úteis para se entender resumidamente as características de um problema multirrótulo. Também é possível usá-las para se compreender o comportamento das estratégias e algoritmos propostos, por exemplo, alguns deles sofrem quando existe uma variedade muito grande nos conjuntos de rótulos, provocando complicações de desbalanceamento de classes quando são transformados em problemas multiclasse. 
+
+A \textit{cardinalidade} de rótulos é a quantidade média de deles por registro $card(D) = \frac{1}{n} \sum_{i = 1}^{n} |Y_i|$.
+
+A \textit{densidade} de rótulos é a proporção entre a cardinalidade e a quantidade de registros$dens(D) = \frac{1}{q} card(D)$.
+
+A \textit{diversidade} mede a quantidade de conjuntos distintos de rótulos no problema $diver(D) = |L|$. Uma diversidade pequena pode indicar que certos rótulos coocorrem com muito frequência, implicando uma espécie de relacionamento entre eles.
 
 \section{Revisão Bibliográfica}\label{sec:revisao}
 Três trabalhos fornecem uma visão geral da área e fazem uma ampla revisão bibliográfica do assunto. Em \cite{Tsoumakas2007-cw}, os autores categorizam as soluções para aprendizado multirrótulo em duas:
@@ -275,20 +303,20 @@ A transformação do problema consiste em torná-lo um problema de rótulo únic
 Nesse mesmo trabalho, são enumeradas várias formas de modificação do problema e é feita uma comparação mais profunda entre três delas. São apresentados também duas métricas para caracterização dos problemas:
 
 \begin{itemize}
-\item Cardinalidade de Rótulos;
-\item Densidade de Rótulos.
+	\item Cardinalidade de Rótulos;
+	\item Densidade de Rótulos.
 \end{itemize}
 
 O trabalho da Tsoumakas e Katakis é aprimorado em \cite{Tsoumakas2009-vw}, com uma visão geral da área seguida de uma extensa revisão bibliográfica por todo o capítulo. Além da categorização anterior ele ainda divide as tarefas de aprendizado supervisionado sobre dados multirrotulados em:
 
 \begin{itemize}
-\item Classificação Multirrótulo;
-\item Ordenação Multirrótulos;
-\item Classificação e Ordenação Multirrótulo.
+	\item Classificação Multirrótulo;
+	\item Ordenação Multirrótulos;
+	\item Classificação e Ordenação Multirrótulo.
 \end{itemize}
 
 São tocados brevemente os assuntos de métricas, dimensionalidade, seleção, extração de atributos e conjuntos de dados com grande volume de rótulos. 
-Mais recentemente, \cite{Zhang2014-be} revisam com mais profundidade oito dos métodos mais representativos de classificação multirrótulo e os formalizam com uma snotação matemática precisa.
+Mais recentemente, \cite{Zhang2014-be} revisam com mais profundidade oito dos métodos mais representativos de classificação multirrótulo e os formalizam com uma notação matemática precisa.
 
 \subsection{Transformação do Problema}\label{subsec:transformacao}
 
@@ -303,7 +331,7 @@ A transformação por seleção se limita e escolher apenas um rótulo em cada r
 A transformação \emph{Conjunto Potência} (\textit{Label Powerset}) propõe tratar um conjunto de rótulos como um rótulo único. Na sua forma mais simples, o conjunto de rótulos de cada registro se torna um novo rótulo, se o mesmo conjunto existir em outro registro, assume-se o mesmo novo rótulo.
 Em conjuntos de dados que em que cada registro possui um conjunto muito distinto de rótulo, a transformação \textit{Label Powerset} acaba criando uma grande variedade de rótulos únicos, cada um com poucos registros.
 
-A variação \emph{Random k-Labelsets} \cite{Tsoumakas2007-wm} usa um ensemble onde cada membro é treinado usando subconjuntos aleatório de rótulos como rótulos únicos.
+A variação \emph{Random k-Labelsets} \cite{Tsoumakas2007-wm} usa um \textit{ensemble} onde cada membro é treinado usando subconjuntos aleatório de rótulos como rótulos únicos.
 
 O problema da grande quantidade de rótulos gerados pelo \textit{Label Powerset} é atacado em uma variante chamada \textit{Pruned Sets}. Essa abordagem procura reforçar as correlações mais importantes entre os rótulos, melhorando a acurácia e diminuindo a complexidade. Apesar de mais simples que o RAkEL, sua performance é ao menos equivalente \cite{Read2008-bt}.
 
@@ -313,7 +341,7 @@ A ordenação da abordagem anterior é transformada em classificação multirró
 
 Uma variação do \textit{Ranking by Pairwise Comparison}, mas usando perceptrons ao invés de classificadores binários pode ser visto em \cite{Mencia2008-rh}.
 
-A classificação por \emph{Relevância Binária} (\textit{Binary Relevance}) consiste em usar um ensemble com um classificador binário “presente/ausente” para cada rótulo. Os dois trabalhos anteriores também podem ser encarados como aplicações de Relevância Binária.
+A classificação por \emph{Relevância Binária} (\textit{Binary Relevance}) consiste em usar um \textit{ensemble} com um classificador binário “presente/ausente” para cada rótulo. Os dois trabalhos anteriores também podem ser encarados como aplicações de Relevância Binária.
 
 Essa abordagem tem dificuldades quando existe um grande número de rótulos diferentes, apesar do crescimento de número de classificadores necessários ser linear. Como são treinados apenas com um rótulo, também não são capazes de aproveitar as correlações entre eles na classificação. A proposta em \cite{Hullermeier2008-co} minimiza esse efeito, mas aumenta o número de classificadores necessários exponencialmente.
 
@@ -333,7 +361,7 @@ A adaptação do algoritmo consiste em modificar algoritmos usados em classifica
 
 Árvores de decisão C4.5 foram adaptadas para o multirrótulo em \cite{Clare2001-tq}. Nele, as folhas da árvore aceitam mais de um rótulo e a fórmula de entropia também foi modificada para o problema.
 
-Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontra qual hipótese coloca os rótulos corretos no topo da ordenação.
+Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
 
 Evoluindo esse trabalho, \cite{De_Comite2003-lg}, propõe o \textit{ADTboost.MH} que adapta o \textit{AdaBoot.MH} para possibilitar trabalhar simultaneamente com dados discretos, contínuos e textuais. As modificações nas árvores de decisão desse algoritmo também procuram facilitar a compreensão da classificação por humanos.
 
@@ -344,8 +372,8 @@ Nessa mesma linha de compreensão do resultado do algoritmo, \cite{Streich2008-v
 Uma avaliação de padrões de coocorrência de rótulos é feita em \cite{Ghamrawi2005-fw} usando \textit{Conditional Random Fields} \cite{Lafferty2001-ov}. São apresentados dois métodos: 
 
 \begin{itemize}
-\item \textit{Collective Multi-Label Classifier} traça as correlações entre pares de rótulos;
-\item \textit{Collective Multi-Label with Features Classifier} correlaciona pares de rótulos a atributos.	
+	\item \textit{Collective Multi-Label Classifier} traça as correlações entre pares de rótulos;
+	\item \textit{Collective Multi-Label with Features Classifier} correlaciona pares de rótulos a atributos.	
 \end{itemize}
 
 Ambos os métodos remetem a \cite{Hullermeier2008-co}, mas usando adaptação de algoritmo ao invés de transformação do problema.
@@ -354,15 +382,15 @@ Já o algoritmo de backpropagation é adaptado em \cite{Zhang2006-vf} com o nome
 
 Ainda na categoria, \cite{Crammer2003-su} propõe uma família de métodos para treinamento online baseados em perceptrons para ordenação multirrótulo.
 
-Em \cite{Elisseeff2001-lp} é feita uma abordagem inspirada em \textit{Support Vector Machine} que tenta controlar a complexidade do classificador enquanto minimiza o Ranking Loss\todo{Ranking Loss ou Hamming Loss?}.
+Em \cite{Elisseeff2001-lp} é feita uma abordagem inspirada em \textit{Support Vector Machine} que tenta controlar a complexidade do classificador enquanto minimiza o Ranking Loss.
 
 Ensembles de \textit{Support Vector Machines} também são utilizadas em \cite{Godbole2004-su} para classificação multirrótulo. No mesmo trabalho, as coocorrências e sobreposições de rótulos são aproveitados para melhorar os resultados.
 
 Uma série de algoritmos baseia-se em k-vizinhos próximos. \cite{Zhang2007-id}, \cite{Luo2005-ac},\cite{Wieczorkowska2006-am}, \cite{Spyromitros2008-rs}, usam todos o mesmo algoritmo base, mas diferenciam-se na maneira como agregam os rótulos para formar o conjunto predito.
  
-\textit{Multi-class, Multi-label Associative Classification} (MMAC) de \cite{Thabtah2004-vz} fornece uma alternativa na classificação multirrótulo usando regras de associação. Os rótulos são considerados de acordo com o suporte da regras.
+\textit{Multi-class, Multi-label Associative Classification} (MMAC) de \cite{Thabtah2004-vz} fornece uma alternativa na classificação multirrótulo usando regras de associação. Os rótulos são considerados de acordo com o suporte das regras.
 
-Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão lazy que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
+Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão \textit{lazy} que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
 
 \section{Referencial Teórico}\label{sec:refteo}
 
@@ -370,9 +398,7 @@ No aprendizado supervisionado a tarefa mais comum é encontrar um único rótulo
 
 A classificação multirrótulo consiste em encontrar o conjunto de rótulos associados a um registro, já a ordenação multirrótulo se preocupa em achar uma ordem para os rótulos de acordo com a probabilidade do rótulo realmente servir para o registro, no entanto sem estabelecer um subconjunto. A classificação usando um único rótulo pode ser vista como um caso particular da classificação multirrótulo.
 
-Existem vários problemas reais em que é natural o uso de mais de um rótulo. Por registro, na classificação de textos, uma reportagem sobre o Oriente Médio pode ser classificada como jornalismo, política ou árabe, entre outros rótulos. Uma fotografia qualquer pode ter múltiplos elementos como um barco, o mar e montanhas ao fundo e cada um desses elementos pode ser considerado um rótulo.
-
-\marginpar{$\Leftarrow$TODO Acho que a parte em que os dados são mencionados precisa ficar em outro lugar. Está perdida aqui.}No aprendizado multirrótulo o subconjunto de rótulos possíveis aumenta exponencialmente a cada novo rótulo. No problema que esse trabalho trata, existem cerca de 8.000 rótulos diferentes, o que resulta em 28.000 subconjuntos possíveis (aproximadamente $17 \times 102.407$). Por isso, foram considerados algoritmos que exploram a coocorrência entre rótulos (Read et al. 2008), (Tsoumakas and Vlahavas 2007) e por apresentarem indícios de melhor desempenho (Tai and Lin 2012), (Zhang and Zhou 2014). 
+Existem vários problemas reais em que é natural o uso de mais de um rótulo. Por exemplo, na classificação de textos, uma reportagem sobre o Oriente Médio pode ser classificada como jornalismo, política ou árabe, entre outros rótulos. Uma fotografia qualquer pode ter múltiplos elementos como um barco, o mar e montanhas ao fundo e cada um desses elementos pode ser considerado um rótulo.
 
 \subsection{Classificação e Ordenação Multirrótulo}\label{subsec:classord}
 
@@ -380,187 +406,308 @@ A tarefa de aprendizado multirrótulo pode ser divida em dois tipos principais, 
 
 \subsection{Ordens de Correlação}\label{subsec:ordcorr}
 
-Uma das características únicas da aprendizagem multirrótulo é que, em problema reais, rótulos costumam se correlacionar. Por exemplo, uma imagem que possua o rótulo "prato" estará mais frequentemente associada com os rótulos "cozinha" ou "ingredientes" do que com rótulos como "praia" ou "areia". Estratégias que se aproveitam da correlação entre rótulos parecem ter melhor desempenho do que as que as ignoram \cite{Zhang2010-ee}.
+Uma das características únicas da aprendizagem multirrótulo é que, em problema reais, rótulos costumam coocorrer ou seguir uma relação hierárquica. Por exemplo, uma imagem que possua o rótulo "prato" estará mais frequentemente associada com os rótulos "cozinha" ou "ingredientes" do que com rótulos como "praia" ou "areia". Estratégias que se aproveitam da correlação entre rótulos parecem ter melhor desempenho do que as que as ignoram \cite{Zhang2010-ee}.
  
 É possível distinguir três tipos de estratégias quanto a correlação entre rótulos, de primeira, segunda ordem e de ordem superior.
 
-\subsubsection{Correlação de Primeira Ordem.}
+\subsubsection{Correlação de Primeira Ordem.} \label{subsec:corr1ordem}
 
 A correlação entre os rótulos não é explorada, a predição para cada rótulo é aprendida separadamente, ou seja, \emph{uma-a-uma}. O conjunto de rótulos predito para cada registro é uma união do resultado de cada aprendizado \cite{De_Carvalho2009-yp}.
 
-\subsubsection{Correlação de Segunda Ordem.}
+As estratégias de cópia e seleção nas seções \ref{subsec:copia}, \ref{subsec:copiaponderada}, \ref{subsec:selecaominimo}, \ref{subsec:selecaomaximo} e \ref{subsec:selecaoaleatoria} mostram exemplos de transformações com correlações de primeira ordem.
+
+\subsubsection{Correlação de Segunda Ordem.} \label{subsec:corr2ordem}
 
 A correlação é explorada no formato \emph{dois-a-dois}. Cada par de rótulos é aprendido por um classificador diferente e o conjunto final é predito através da combinação entre os pares \cite{Hullermeier2008-co}.
 
-\subsubsection{Correlação de Ordem Superior.}
+A estratégia de comparação entre duplas na seção \ref{subsec:comparacaoduplas} é usa correlação de segunda ordem.
+
+\subsubsection{Correlação de Ordem Superior.} \label{subsec:corrSordem}
 
 Explora-se a correlação entre conjuntos maiores de rótulos \cite{Read2008-bt}, entre subconjuntos aleatórios entre si \cite{Tsoumakas2007-cw} ou com relações de hierarquia entre rótulos \cite{Vens2008-yp}, \cite{Cesa-Bianchi2006-fk}, \cite{Esuli2008-on}.
 
-[TODO: Colocar exemplos para cada um]
-
+As estratégias RAkEL e \textit{Ensemble of Pruned Sets} nas seções \ref{subsec:rakel} e \ref{subsec:eps} são exemplos de correlação de ordem superior.
 
 \section{Transformação do Problema}\label{sec:transprob}
 
-Existem várias estratégias que transformam um problema multirrótulo em um único problema mais simples ou em um conjunto de problemas que já possuem soluções.
+Existem várias estratégias que transformam um problema multirrótulo em um problema mais simples ou em um conjunto de problemas que já possuem soluções. Quase todas as estratégias abaixo transformam o problema de multirrótulo para multiclasse. Alguns deles como o \textit{RAkEL} \cite{Tsoumakas2007-wm} e o \textit{Ensemble of Pruned Sets} \cite{Read2008-bt} possuem métodos para incorporar novamente a variedade de rótulos nas respostas dos classificadores.
 
-O conjunto de registros na tabela \ref{tab:exbase} será usado para ilustrar as diversas estratégias de transformação.
+O conjunto de registros na tabela \ref{tab:exbase} é usado para ilustrar as diversas estratégias de transformação.
+
+Todas as transformações por cópia e seleção ignoram a relação entre os rótulos, por isso são métodos de \textit{correlação de primeira ordem} (seção \ref{subsec:corr1ordem}).
 
 \begin{table}
-\centering
-\begin{tabular}{| c | c |}
-	\hline
-	\textbf{Registro} & \textbf{Rótulos} \\
-	\hline
-	$x_1$ & $y_1$ \\
-	\hline
-	$x_2$ & $y_2, y_3$ \\
-	\hline
-	$x_3$ & $y_3$ \\
-	\hline
-	$x_4$ & $y_3, y_4, y_5$ \\
-	\hline
-	$x_5$ & $y_3, y_5$ \\
-	\hline
-\end{tabular}
-\caption{Exemplos de registros}
-\label{tab:exbase}
+	\centering
+	\begin{tabular}{| c | c |}
+		\hline
+		\textbf{Registro} & \textbf{Rótulos} \\
+		\hline
+		$\vec{x_1}$ & $y_1$ \\
+		\hline
+		$\vec{x_2}$ & $y_2, y_3$ \\
+		\hline
+		$\vec{x_3}$ & $y_3$ \\
+		\hline
+		$\vec{x_4}$ & $y_3, y_4, y_5$ \\
+		\hline
+		$\vec{x_5}$ & $y_3, y_5$ \\
+		\hline
+	\end{tabular}
+	\caption{Exemplos de registros}
+	\label{tab:exbase}
 \end{table}
 
-\subsection{Transformação por Cópia}
+\subsection{Transformação por Cópia} \label{subsec:copia}
 
 A transformação mais simples consiste em copiar os registros uma vez para cada rótulo. Usando a tabela de registros \ref{tab:exbase}, a transformação por cópia resulta na tabela \ref{tab:excopia}.
 
 \begin{table}
+\parbox{.45\linewidth}{
 	\centering
 	\begin{tabular}{| c | c |}
 		\hline
 		\textbf{Registro} & \textbf{Rótulo} \\
 		\hline
-		$x_{1,1}$ & $y_1$ \\
+		$\vec{x_1}$ & $y_1$ \\
 		\hline
-		$x_{2,1}$ & $y_2$ \\
+		$\vec{x_2}$ & $y_2$ \\
 		\hline
-		$x_{2,2}$ & $y_3$ \\
+		$\vec{x_2}$ & $y_3$ \\
 		\hline
-		$x_{3,1}$ & $y_3$ \\
+		$\vec{x_3}$ & $y_3$ \\
 		\hline
-		$x_{4,1}$ & $y_3$ \\
+		$\vec{x_4}$ & $y_3$ \\
 		\hline
-		$x_{4,2}$ & $y_4$ \\
+		$\vec{x_4}$ & $y_4$ \\
 		\hline
-		$x_{4,3}$ & $y_5$ \\
+		$\vec{x_4}$ & $y_5$ \\
 		\hline
-		$x_{5,1}$ & $y_3$ \\
+		$\vec{x_5}$ & $y_3$ \\
 		\hline
-		$x_{5,2}$ & $y_5$ \\
+		$\vec{x_5}$ & $y_5$ \\
 		\hline
 	\end{tabular}
 	\caption{Transformação por cópia}
 	\label{tab:excopia}
-\end{table}
-
-É possível observar que o número de registros cresce de acordo com o número de rótulos. Formalmente, descreve-se que cada registro $(x_i,Y_i)$ é multiplicado $|Y_i|$ vezes, substituindo $Y_i$ por $y_j \in Y_i$ em cada cópia, resultando em $(x_{ij}, y_j)$. O número de registros passa de $|\mathcal{X}|$ para $\sum_{i=1}^{n}|Y_i|$.
-
-Essa transformação pode ser usada com um ensemble de classificadores para gerar o conjunto final de rótulos \cite{Joachims1998-zz}, \cite{Yang1999-ah}.
-
-\subsection{Transformação por Cópia Ponderada}
-
-Da mesma forma que a cópia do registros, mas cada rótulo recebe um valor associado que representa sua participação no registro $w = \frac{1}{|Y_i|}$.
-
-\begin{table}
+}
+\parbox{.45\linewidth}{
 	\centering
 	\begin{tabular}{| c | c | c |}
 		\hline
 		\textbf{Registro} & \textbf{Rótulo} & \textbf{Peso ($w$)} \\
 		\hline
-		$x_{1,1}$ & $y_1$ & $1$ \\
+		$\vec{x_1}$ & $y_1$ & $1$ \\
 		\hline
-		$x_{2,1}$ & $y_2$ & $\frac{1}{2}$ \\
+		$\vec{x_2}$ & $y_2$ & $\frac{1}{2}$ \\
 		\hline
-		$x_{2,2}$ & $y_3$ & $\frac{1}{2}$ \\
+		$\vec{x_2}$ & $y_3$ & $\frac{1}{2}$ \\
 		\hline
-		$x_{3,1}$ & $y_3$ & $1$ \\
+		$\vec{x_3}$ & $y_3$ & $1$ \\
 		\hline
-		$x_{4,1}$ & $y_3$ & $\frac{1}{3}$ \\
+		$\vec{x_4}$ & $y_3$ & $\frac{1}{3}$ \\
 		\hline
-		$x_{4,2}$ & $y_4$ & $\frac{1}{3}$ \\
+		$\vec{x_4}$ & $y_4$ & $\frac{1}{3}$ \\
 		\hline
-		$x_{4,3}$ & $y_5$ & $\frac{1}{3}$ \\
+		$\vec{x_4}$ & $y_5$ & $\frac{1}{3}$ \\
 		\hline
-		$x_{5,1}$ & $y_3$ & $\frac{1}{2}$ \\
+		$\vec{x_5}$ & $y_3$ & $\frac{1}{2}$ \\
 		\hline
-		$x_{5,2}$ & $y_5$ & $\frac{1}{2}$ \\
+		$\vec{x_5}$ & $y_5$ & $\frac{1}{2}$ \\
 		\hline
 	\end{tabular}
-	\caption{Transformação por cópia}
+	\caption{Cópia ponderada}
 	\label{tab:excopiapond}
+}
 \end{table}
 
-\subsection{Transformação pela Seleção do Mínimo}
+É possível observar que o número de registros cresce de acordo com o número de rótulos. Formalmente, descreve-se que cada registro $(x_i,Y_i)$ é multiplicado $|Y_i|$ vezes, substituindo $Y_i$ por $y_j \in Y_i$ em cada cópia, resultando em $(x_{i}, y_j)$. O número de registros passa de $|\mathcal{X}|$ para $\sum_{i=1}^{n}|Y_i|$.
+
+Essa transformação pode ser usada com um \textit{ensemble} de classificadores para gerar o conjunto final de rótulos \cite{Joachims1998-zz} \cite{Yang1999-ah}.
+
+\subsection{Transformação por Cópia Ponderada} \label{subsec:copiaponderada}
+
+Da mesma forma que a cópia do registros, mas cada rótulo recebe um valor associado que representa sua participação no registro $w = \frac{1}{|Y_i|}$. A tabela \ref{tab:excopiapond} mostra o resultado da aplicação desse método.
+
+\subsection{Transformação pela Seleção do Mínimo} \label{subsec:selecaominimo}
 
 Nessa transformação, o rótulo menos frequente no conjunto $\mathcal{Y}$ é selecionado para descrever cada registro.
 
-Formalmente:
-
-Dado $freq : \mathcal{Y} \to \mathbb{N}_0$ como a frequência de ocorrência de um rótulo em todo o conjunto de rótulos, cada registro $(x_i, Y_i)$ é transformado em:
+Dada a função $freq : \mathcal{Y} \to \mathbb{N}_0$ como a função que retorna o número de ocorrências de um rótulo em todo o conjunto de rótulos $L$, cada registro $(x_i, Y_i)$ é transformado em:
 
 $$(x_i, \min_{\forall q \in Y_i} freq(q))$$
 
+A tabela \ref{tab:exselmin} mostra o resultado da seleção do mínimo.
+
 \begin{table}
+\parbox{.45\linewidth} {
 	\centering
 	\begin{tabular}{| c | c |}
 		\hline
 		\textbf{Registro} & \textbf{Rótulos} \\
 		\hline
-		$x_1$ & $y_1$ \\
+		$\vec{x_1}$ & $y_1$ \\
 		\hline
-		$x_2$ & $y_2$ \\
+		$\vec{x_2}$ & $y_2$ \\
 		\hline
-		$x_3$ & $y_3$ \\
+		$\vec{x_3}$ & $y_3$ \\
 		\hline
-		$x_4$ & $y_4$ \\
+		$\vec{x_4}$ & $y_4$ \\
 		\hline
-		$x_5$ & $y_5$ \\
+		$\vec{x_5}$ & $y_5$ \\
 		\hline
 	\end{tabular}
 	\caption{Seleção do mínimo}
 	\label{tab:exselmin}
+}
+\parbox{.45\linewidth}{
+	\centering
+	\begin{tabular}{| c | c |}
+		\hline
+		\textbf{Registro} & \textbf{Rótulos} \\
+		\hline
+		$\vec{x_1}$ & $y_1$ \\
+		\hline
+		$\vec{x_2}$ & $y_2$ \\
+		\hline
+		$\vec{x_3}$ & $y_3$ \\
+		\hline
+		$\vec{x_4}$ & $y_4$ \\
+		\hline
+		$\vec{x_5}$ & $y_5$ \\
+		\hline
+	\end{tabular}
+	\caption{Seleção do máximo}
+	\label{tab:exselmax}
+}
 \end{table}
 
-\subsection{Transformação pela Seleção do Máximo}
+\subsection{Transformação pela Seleção do Máximo} \label{subsec:selecaomaximo}
 
-Na seleção do máximo, cada o rótulo selecionada para representar cada registro é o que ocorre com mais frequência no conjunto $\mathcal{Y}$.
+Na seleção do máximo, cada o rótulo selecionado para representar cada registro é o que ocorre com mais frequência no conjunto $\mathcal{Y}$.
 
 Similar à seleção do mínimo, cada registro $(x_i, Y_i)$ é transformado em:
 
 $$(x_i, \max_{\forall q \in Y_i} freq(q))$$
 
+A tabela \ref{tab:exselmax} mostra um exemplo dessa transformação.
+
+\subsection{Transformação por Seleção Aleatória} \label{subsec:selecaoaleatoria}
+
+A seleção aleatória simplesmente seleciona um único rótulo aleatoriamente do conjunto para representar o registro.
+
+Dada a função $rand : 2^\mathcal{Y} \to \mathcal{Y}$ que retorna um rótulo qualquer de um conjunto de rótulos recebidos, cada registro é transformado $(x_i, Y_i)$ em $(x_i, rand(Y_i))$.
+
+\begin{table}
+\parbox{.45\linewidth}{
+	\centering
+	\begin{tabular}{| c | c |}
+		\hline
+		\textbf{Registro} & \textbf{Rótulos} \\
+		\hline
+		$\vec{x_1}$ & $y_1$ \\
+		\hline
+		$\vec{x_2}$ & $y_3$ \\
+		\hline
+		$\vec{x_3}$ & $y_3$ \\
+		\hline
+		$\vec{x_4}$ & $y_5$ \\
+		\hline
+		$\vec{x_5}$ & $y_3$ \\
+		\hline
+	\end{tabular}
+	\caption{Seleção aleatória}
+	\label{tab:exrand}
+}
+\parbox{.45\linewidth}{
+	\centering
+	\begin{tabular}{| c | c |}
+		\hline
+		\textbf{Registro} & \textbf{Rótulos} \\
+		\hline
+		$\vec{x_1}$ & $y_1$ \\
+		\hline
+		$\vec{x_3}$ & $y_3$ \\
+		\hline
+	\end{tabular}
+	\caption{Ignorando multirrótulos}
+	\label{tab:exignora}
+}
+\end{table}
+
+\subsection{Transformação por Ignorar Multirrótulo} \label{subsec:ignorarmultirrotulo}
+
+Essa transformação simples reduz o número de registros de treino ignorando todos aqueles que possuem mais de um único rótulo.
+
+O conjunto resultante é formado por $\{ (x_i, Y_i) \mid |Y_i| = 1 \}$
+
+
+Se a cardinalidade for próxima de 1 essa técnica pode ser apropriada, embora o resultado da transformação fique muito próximo da \textit{transformação por cópia}.
+
+Com cardinalidades mais altas, esse método pode remover uma quantidade significativa de registros.
+
+\subsection{Transformação por Conjunto Potência (\textit{Label Powerset})} \label{subsec:conjuntopotencia}
+
+Na sua versão mais simples, essa estratégia transforma cada conjunto possível de rótulos em um único rótulo novo. Por exemplo, o conjunto de rótulos $\mathcal{Y} = \{a, b, c\}$ se transforma nos rótulos $\mathcal{Y'} = \{a, b, c, ab, bc, ac, abc\}$. O número de classes geradas dessa maneira é $2^q$.
+
 \begin{table}
 	\centering
 	\begin{tabular}{| c | c |}
 		\hline
 		\textbf{Registro} & \textbf{Rótulos} \\
 		\hline
-		$x_1$ & $y_1$ \\
+		$\vec{x_1}$ & $y_1$ \\
 		\hline
-		$x_2$ & $y_2$ \\
+		$\vec{x_2}$ & $y_{2, 3}$ \\
 		\hline
-		$x_3$ & $y_3$ \\
+		$\vec{x_3}$ & $y_3$ \\
 		\hline
-		$x_4$ & $y_4$ \\
+		$\vec{x_4}$ & $y_{3, 4, 5}$ \\
 		\hline
-		$x_5$ & $y_5$ \\
+		$\vec{x_5}$ & $y_{3, 5}$ \\
 		\hline
 	\end{tabular}
-	\caption{Seleção do máximo}
-	\label{tab:exselmax}
+	\caption{Conjunto potência concatena rótulos}
+	\label{tab:expotencia}
 \end{table}
 
-\subsection{Transformação por Seleção Aleatória}
 
-\subsection{Transformação por Ignorar Multirrótulo}
+Na prática, a quantidade de rótulos está limitada ao conjunto de registros $\min(n, 2^q)$. Se a \textit{densidade} do conjunto for baixa e a \textit{diversidade} for alta, essa estratégia acaba criando classes muito desbalanceadas, o que requer outras técnicas para o treinamento, como detecção de anomalias. Apesar disso, explora bastante bem a relação entre os rótulos \cite{Read2008-bt} pois forma \textit{correlações de segunda ordem}.
+
+As estratégias \textit{RAkEL} \cite{Tsoumakas2007-wm} e \textit{Ensemble of Pruned Sets} \cite{Read2008-bt} descritas abaixo nas seções \ref{subsec:rakel} e \ref{subsec:eps} procuram lidar com os problemas gerados por essa transformação enquanto preservam suas vantagens.
+
+\subsection{Conjunto Aleatório de k-Rótulos (RAkEL)} \label{subsec:rakel}
+
+Essa estratégia procura resolver os problemas da \textit{transformação por conjunto potência} usando conjuntos aleatórios de rótulos \cite{Tsoumakas2007-wm}.
+
+Parte dessa estratégia implica no uso de um \textit{ensemble} de classificadores. Cada classificador é treinado com um subconjunto de tamanho $k$ dos rótulos em $\mathcal{Y}$. O resultado desses classificadores é depois combinado para retornar os rótulos preditos.
+
+Para formalizar o problema, seja $L^k$ a família de conjuntos\footnote{Conjunto de subconjuntos de tamanho $k$.} sobre $\mathcal{Y}$ formada por todos o conjuntos de tamanho $k$ possíveis de rótulos do problema. $L^k_i$ é o \textit{i-ésimo} conjunto de rótulos de $L^k_i$, então  $L^k_i \subseteq \mathcal{Y}, |L^k_i| = k$.
+
+É treinada uma quantidade arbitrária de classificadores\footnote{São sugeridos $2q$ classificadores no artigo original \cite{Tsoumakas2007-wm}.}, cada um com um conjunto aleatoriamente extraído de $L^k$.
+
+Para a montagem da resposta do \textit{ensemble}, é feita uma votação somente entre os classificadores em que o rótulo fez parte de seu treinamento, se a proporção de classificadores positivos for maior que um certo limite\footnote{No artigo original o valor recomendado é 0,5, ou seja, metade dos classificadores.}, então o rótulo é adicionado ao conjunto resposta.
+
+O RAkEL ainda possui problemas quando o conjunto de rótulos é muito grande, e certamente precisa de adaptações se a diversidade dos conjuntos for pequena. Nesse cenário, a maior parte dos conjuntos aleatoriamente extraídos não encontrará registros para classificar. Se $L^k$ for restrito apenas aos conjunto de rótulos presentes nos registros, esse problema é desaparece.
+ 
+ 
+\subsection{Comitê de Conjunto Potência Podado} \label{subsec:eps}
+
+No original chamado de \textit{Ensemble of Pruned Sets} \cite{Read2008-bt}, essa estratégia procura reforçar as correlações mais importantes entre os rótulos removendo os conjuntos menos frequentes. Para diminuir a perda de informação, os registros removidos podem voltar a integrar o conjunto de treino através de uma análise dos seus subconjuntos de rótulos.
+
+Segundo o artigo que apresenta o método os resultados são similares ao \textit{RAkEL}, mas é computacionalmente mais leve. Nesse trabalho é possível comprovar a redução na complexidade do modelo (seção \ref{sec:aplicacao}) e a qualidade do resultado (seção \ref{sec:resultados}).
+
+Essa estratégia é detalhada na aplicação do método na seção \ref{sec:aplicacao}. Em termos gerais, ele gera um conjunto com o conjunto de rótulos mais frequentes, a seguir o usa para selecionar os registros que farão parte do treinamento. Para evitar a redução excessiva do conjunto de treinamento os registros inicialmente removidos voltam a integrá-lo através de \textit{cópia} quando é possível encontrar um subconjunto de rótulos no registro que faz parte dos conjuntos de rótulos frequentes.
+
+
+\subsection{Ordenação por Comparação de Duplas} \label{subsec:comparacaoduplas}
+
+\subsection{Relevância Binária} \label{subsec:relevanciabinaria}
 
 [TODO Desculpe, mas ainda não acabei de copiar o conteúdo do outro documento, Professor! Estou trabalhando nisso :p]
+
+\section{Adaptação do Problema}
+
+\section{Métrica de Avaliação}
 
 \section{Método Aplicado} \label{sec:justificativa}
 
@@ -568,7 +715,7 @@ O método escolhido para o trabalho foi o de \textit{Ensemble of Pruned Sets} \c
 
 Para esse caso, é necessário um método que tenha bons resultados e que possa trabalhar com um grande conjunto de rótulos e de registros. Vários deles se encaixam nesses requisitos, mas dois chamam especial atenção.
 
-O método RAkEL \cite{Tsoumakas2007-wm} é referência na área, sendo um dos mais citados em trabalhos de aprendizado multirrótulo. O método usando \textit{Ensemble Pruned Sets} baseia-se no RAkEL propondo uma abordagem mais restrita e computacionalmente mais econômica.
+O método RAkEL \cite{Tsoumakas2007-wm} é referência na área, sendo um dos mais citados em trabalhos de aprendizado multirrótulo. O método usando \textit{Ensemble of Pruned Sets} baseia-se no RAkEL propondo uma abordagem mais restrita e computacionalmente mais econômica.
 
 Ambos os métodos foram considerados, mas o RAkEL foi descartado nas primeira fases da análise pelas características do problema.
 
@@ -633,7 +780,7 @@ Na etapa seguinte é aplicada a poda de conjuntos \cite{Read2008-bt}. Nela, os r
 
 \section{Aplicação do Método} \label{sec:aplicacao}
 
-O processo de poda dos conjuntos de rótulos acontece em três fases, na primeira, encontramos os conjuntos mais frequentes de rótulos; na segunda, separamos os registros que se encaixam nesse grupo; na terceira, aplicamos uma estratégia para resgatar registros que ficaram de fora da segunda fase. O objetivo é criar o conjunto de treinamento $\mathcal{T} = \{(x_1,Y_1), (x_2, Y_2), \dots, (x_n, Y_n)\}$ a partir dos conjuntos de rótulos mais frequentes.
+O processo de poda dos conjuntos de rótulos acontece em três fases, na primeira, encontramos os conjuntos mais frequentes de rótulos; na segunda, separamos os registros que se encaixam nesse grupo; na terceira, aplicamos uma estratégia para resgatar registros que ficaram de fora da segunda fase. O objetivo é criar o conjunto de treinamento $\mathcal{T} = \{(\vec{x_1},Y_1), (\vec{x_2}, Y_2), \dots, (x_n, Y_n)\}$ a partir dos conjuntos de rótulos mais frequentes.
 
 Seja $\mathcal{F}$ a família de conjunto de rótulos mais frequentes acima de uma certa repetição $r$:
 
@@ -643,7 +790,7 @@ $$
 
 Onde $freq : \mathcal{Y} \times \mathcal{Y} \to \mathbb{N}$ retorna o número de vezes que $Y$ ocorre em $L$.
 
-O conjunto de treino $\mathcal{T'}$ é formado por todos os registros onde seus rótulos são encontrados nos rótulos mais frequentes $Y \in F$. Cria-se outro conjunto $\mathcal{T''}$ através de uma estratégia de \textit{cópia} modificada para os registros que ficaram de fora de $\mathcal{T'}$. O conjunto final de treino $\mathcal{T}$ é composto pela união dos dois conjuntos anteriores.
+O conjunto de treinamento $\mathcal{T'}$ é formado por todos os registros onde seus rótulos são encontrados nos rótulos mais frequentes $Y \in F$. Cria-se outro conjunto $\mathcal{T''}$ através de uma estratégia de \textit{cópia} modificada para os registros que ficaram de fora de $\mathcal{T'}$. O conjunto final de treinamento $\mathcal{T}$ é composto pela união dos dois conjuntos anteriores.
 
 Para formar $\mathcal{T''}$, selecionamos um registro para cada vez que um subconjunto de seus rótulos puderem ser encontrados no conjunto de frequentes $\mathcal{F}$.
 
@@ -653,11 +800,11 @@ Para formar $\mathcal{T''}$, selecionamos um registro para cada vez que um subco
 \mathcal{T} &=  \mathcal{T'} \cup \mathcal{T''}
 \end{align*}
 
-Depois de criado o novo conjunto de treino $\mathcal{T}$ transforma-se cada conjunto de rótulos encontrado em $\mathcal{F}$ em um rótulo único. A partir desse ponto, o problema se transforma em um problema de classificação multiclasse.
+Depois de criado o novo conjunto de treinamento $\mathcal{T}$ transforma-se cada conjunto de rótulos encontrado em $\mathcal{F}$ em um rótulo único. A partir desse ponto, o problema se transforma em um problema de classificação multiclasse.
 
 É usado então um \textit{ensemble} de classificadores binários\footnote{Foram usados classificadores SVM (Support Vector Machine)} para selecionar quais rótulos fazem parte da resposta. A maneira como é montado o conjunto resultado é diferente do proposto originalmente no modelo de \textit{Pruned Sets} \cite{Read2008-bt}. Nele, apenas o classificador com melhor resultado retorna sua predição\footnote{Esse modelo é conhecido como \textit{one-vs-rest} \cite{Bishop2006-vm}}, nesse, cada classificador com retorno positivo soma seus rótulos associados a um multiconjunto (\textit{bag} ou \textit{multiset}) que será retornado como resposta da classificação. Posteriormente, um limite de corte é estabelecido para eliminar rótulos menos votados.
 
-Em testes preliminares, essa modificação apresentou melhores resultados, permitindo que o modelo gerasse como resposta conjuntos de rótulos que não estavam no conjunto de treino.
+Em testes preliminares, essa modificação apresentou melhores resultados, permitindo que o modelo gerasse como resposta conjuntos de rótulos que não estavam no conjunto de treinamento.
 
 Digamos, por exemplo, que possuímos apenas dois classificadores, um associado ao conjunto de rótulos $\{magro, alto\}$ e outro associado a $\{magro, baixo\}$. Se ao passar por ambos os classificadores o registro tiver retorno positivo apenas no primeiro, a resposta resultante será $\{(magro, 1), (alto, 1)\}$. Se os dois classificadores retornarem positivo, a resposta final seria $\{(magro, 2), (alto, 1), (baixo, 1)\}$.
 
