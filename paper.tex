@@ -184,11 +184,51 @@ Esse trabalho usa uma base de dados de mercado para tentar prever quais ocupaç�
 
 Os resultados mostram que é possível prever bastante bem quais são as ocupações para essas oportunidades utilizando somente o título anunciado. A intenção é incorporar o modelo gerado nesse trabalho para ajudar os recrutadores a criarem oportunidades mais assertivas.
 
-A próxima seção \ref{sec:formal} define formalmente os problemas de classificação e ordenação multirrótulo, nela também é apresentada a notação matemática usada no restante do trabalho. Logo a seguir a seção \ref{sec:metricas} apresenta métricas usadas para caracterização dos problemas de aprendizado multirrótulo, ao invés de uma lista extensa ela é restrita a três das métricas mais relevantes para o problema tratado nesse trabalho.
+Além do caso em questão, é natural o uso de mais de um rótulo em outros problemas. Por exemplo, na classificação de textos, uma reportagem sobre o Oriente Médio pode ser classificada como jornalismo, política ou árabe, entre outros rótulos. Uma fotografia qualquer pode ter múltiplos elementos como um barco, o mar e montanhas ao fundo e cada um desses elementos pode ser considerado um rótulo.
 
-As seções \ref{sec:revisao} e \ref{sec:refteo} apresentam uma breve revisão das pesquisas relevantes na área de classificação multirrótulo, com maior detalhamento nas técnicas selecionadas para o trabalho. A seguir, nas seções \ref{sec:justificativa} e \ref{sec:preparacao}, é apresentada uma justificativa para a escolha do método e  um resumo dos processos empregados para limpeza e seleção dos dados.
+O aprendizado multirrótulo é um aprendizado supervisionado e procura encontrar o \emph{conjunto} de rótulos associado a um registro. Nesse trabalho, foi adotado o termo "aprendizado" ao invés de classificação pois essa área estuda tanto o aprendizado de funções de classificação quanto de ordenação, explicados em mais detalhes na seção \ref{sec:classord} \cite{Zhang2014-be}.
+
+As próximas seções apresentam uma visão geral e uma breve revisão das pesquisas relevantes na área de classificação multirrótulo, com maior detalhamento nas técnicas selecionadas para o trabalho. A seguir, a seção \ref{sec:formal} define formalmente os problemas de classificação e ordenação multirrótulo, nela também é apresentada a notação matemática usada no restante do trabalho. 
+
+Logo depois, a seção \ref{sec:metricas} apresenta métricas usadas para caracterização dos problemas de aprendizado multirrótulo, ao invés de uma lista extensa ela é restrita a três das métricas mais relevantes para o problema tratado nesse trabalho. Nas seções \ref{sec:justificativa} e \ref{sec:preparacao}, é apresentada uma justificativa para a escolha do método e  um resumo dos processos empregados para limpeza e seleção dos dados.
 
 A seção \ref{sec:aplicacao} detalha aplicação do método, enquanto a seção \ref{sec:resultados} apresenta os resultados obtidos. Finalmente a última seção \ref{sec:conclusao} faz considerações sobre o trabalho, destacando pontos de interesse e limitações dos resultados obtidos.
+
+\section{Transformação do Problema e Adaptação do Algoritmo}
+
+A tarefa de aprendizado multirrótulo pode ser divida em dois tipos principais, dependendo da estratégia para abordá-la \cite{Tsoumakas2009-vw}. A primeira abordagem consiste em transformá-la em um problema de \textit{classificação multiclasse}, para o qual já existe extensa literatura e estudo. A segunda abordagem \textit{adapta algoritmos} usados na classificação multiclasse para que sejam capazes de lidar com múltiplos rótulos.
+
+Algumas das adaptações de algoritmos como [TODO listá-las aqui] fazem, na verdade, transformações do problema dentro da adaptação.
+
+\section{Classificação e Ordenação Multirrótulo} \label{sec:classord}
+
+A classificação consiste em encontrar um subconjunto de rótulos que esteja corretamente associado a um exemplo. Já a ordenação não cria um subconjunto a ser associado ao registro, ao invés disso, procura estabelecer uma ordem entre o todos os rótulos. Aqueles com maior confiança de pertencer ao registro são colocados antes daqueles com menor confiança.
+
+Um ordenação multirrótulo é transformada em uma classificação se em algum ponto da ordem for estabelecido um corte e apenas os rótulos em posições melhores forem considerados. Esse \enquote{conjunto dos melhores} é o conjunto resposta para a classificação.
+
+\section{Ordens de Correlação}
+
+Uma das características únicas da aprendizagem multirrótulo é que, em problema reais, rótulos costumam coocorrer ou seguir uma certa relação hierárquica. Por exemplo, uma imagem que possua o rótulo "prato" estará mais frequentemente associada com os rótulos "cozinha" ou "ingredientes" do que com rótulos como "praia" ou "areia". Estratégias que se aproveitam da relação entre rótulos parecem ter melhor desempenho do que as que as ignoram \cite{Zhang2010-ee}.
+
+É possível distinguir três tipos de estratégias quanto a correlação entre rótulos, de primeira, segunda ordem e de ordem superior.
+
+\subsection{Correlação de Primeira Ordem.} \label{subsec:corr1ordem}
+
+A correlação entre os rótulos não é explorada, a predição para cada rótulo é aprendida separadamente, ou seja, \emph{uma-a-uma}. O conjunto de rótulos predito para cada registro é uma união do resultado de cada aprendizado \cite{De_Carvalho2009-yp}.
+
+As estratégias de cópia e seleção nas seções \ref{subsec:copia}, \ref{subsec:copiaponderada}, \ref{subsec:selecaominimo}, \ref{subsec:selecaomaximo} e \ref{subsec:selecaoaleatoria} mostram exemplos de transformações com correlações de primeira ordem, bom como a \textit{Relevância Binária} (seção \ref{subsec:relevanciabinaria}).
+
+\subsection{Correlação de Segunda Ordem.} \label{subsec:corr2ordem}
+
+A correlação é explorada no formato \emph{dois-a-dois}. Cada par de rótulos é aprendido por um classificador diferente e o conjunto final é predito através da combinação entre os pares \cite{Hullermeier2008-co}.
+
+A estratégia de comparação entre duplas na seção \ref{subsec:comparacaoduplas} usa correlação de segunda ordem.
+
+\subsection{Correlação de Ordem Superior.} \label{subsec:corrSordem}
+
+Explora-se a correlação entre conjuntos maiores de rótulos \cite{Read2008-bt}, entre subconjuntos aleatórios entre si \cite{Tsoumakas2007-cw} ou com relações de hierarquia entre rótulos \cite{Cesa-Bianchi2006-fk}.
+
+As estratégias RAkEL e \textit{Ensemble of Pruned Sets} nas seções \ref{subsec:rakel} e \ref{subsec:eps} são exemplos de correlação de ordem superior.
 
 \section{Definição Formal do Problema} \label{sec:formal}
 
@@ -282,151 +322,13 @@ Para conveniência, as tabelas \ref{tab:matematica-registros}, \ref{tab:matemati
 
 \section{Métricas para Caracterização do Problema} \label{sec:metricas}
 
-As três métricas a seguir são úteis para se entender resumidamente as características de um problema multirrótulo. Também é possível usá-las para se compreender o comportamento das estratégias e algoritmos propostos, por exemplo, alguns deles sofrem quando existe uma variedade muito grande nos conjuntos de rótulos, provocando complicações de desbalanceamento de classes quando são transformados em problemas multiclasse. 
+As três métricas a seguir \cite{Zhang2014-be} são úteis para se entender resumidamente as características de um problema multirrótulo. Também é possível usá-las para se compreender o comportamento das estratégias e algoritmos propostos, por exemplo, alguns deles sofrem quando existe uma diversidade muito grande nos conjuntos de rótulos, provocando complicações de desbalanceamento quando são transformam o problema em multiclasse. 
 
 A \textit{cardinalidade} de rótulos é a quantidade média de deles por registro $card(D) = \frac{1}{n} \sum_{i = 1}^{n} |Y_i|$.
 
 A \textit{densidade} de rótulos é a proporção entre a cardinalidade e a quantidade de registros$dens(D) = \frac{1}{q} card(D)$.
 
-A \textit{diversidade} mede a quantidade de conjuntos distintos de rótulos no problema $diver(D) = |L|$. Uma diversidade pequena pode indicar que certos rótulos coocorrem com muito frequência, implicando uma espécie de relacionamento entre eles.
-
-\section{Revisão Bibliográfica}\label{sec:revisao}
-Três trabalhos fornecem uma visão geral da área e fazem uma ampla revisão bibliográfica do assunto. Em \cite{Tsoumakas2007-cw}, os autores categorizam as soluções para aprendizado multirrótulo em duas:
-
-\begin{itemize}
-\item Transformação do problema;
-\item Adaptação do algoritmo.
-\end{itemize}
-
-A transformação do problema consiste em torná-lo um problema de rótulo único e então usar soluções já estudadas na área. A adaptação do algoritmo altera técnicas conhecidas para classificação de rótulo único e as modifica para lidar com múltiplos rótulos.
-
-Nesse mesmo trabalho, são enumeradas várias formas de modificação do problema e é feita uma comparação mais profunda entre três delas. São apresentados também duas métricas para caracterização dos problemas:
-
-\begin{itemize}
-	\item Cardinalidade de Rótulos;
-	\item Densidade de Rótulos.
-\end{itemize}
-
-O trabalho da Tsoumakas e Katakis é aprimorado em \cite{Tsoumakas2009-vw}, com uma visão geral da área seguida de uma extensa revisão bibliográfica por todo o capítulo. Além da categorização anterior ele ainda divide as tarefas de aprendizado supervisionado sobre dados multirrotulados em:
-
-\begin{itemize}
-	\item Classificação Multirrótulo;
-	\item Ordenação Multirrótulos;
-	\item Classificação e Ordenação Multirrótulo.
-\end{itemize}
-
-São tocados brevemente os assuntos de métricas, dimensionalidade, seleção, extração de atributos e conjuntos de dados com grande volume de rótulos. 
-Mais recentemente, \cite{Zhang2014-be} revisam com mais profundidade oito dos métodos mais representativos de classificação multirrótulo e os formalizam com uma notação matemática precisa.
-
-\subsection{Transformação do Problema}\label{subsec:transformacao}
-
-A transformação do problema consiste em modificá-lo para que se torne um problema de rótulo único. Dessa forma, algoritmos estudados nessa área podem ser aplicados sem alteração ao problema. Essa abordagem é primeiramente apresentada em \cite{Tsoumakas2007-cw}, recebendo apenas números como nomenclatura. Em \cite{Tsoumakas2009-vw} as transformações são expandidas com referência a novos trabalhos e recebem nomes específicos.
-
-As abordagens mais simples citadas são por cópia e seleção. Na abordagem por cópia o os registros no conjunto de dados são repetidos uma vez para rótulo. Se um registro possui dois rótulos, ele é duplicado e cada cópia recebe apenas um dos rótulos.
-
-Uma variação é a \emph{cópia com peso ponderado} (\textit{copy-weight}). Ela funciona como a cópia simples, mas um peso é adicionado a cada registro de acordo com o número de rótulos no registro original.
-
-A transformação por seleção se limita e escolher apenas um rótulo em cada registro. Na variação \emph{selecionar-máximo} (\textit{select-max}), é selecionado o rótulo que mais aparece em outros registros. No \emph{selecionar-mínimo} (\textit{select-min}), o rótulo selecionado é aquele que menor frequência no conjunto de dados. A tática \emph{selecionar-aleatório} (\textit{select-random}) seleciona aleatoriamente apenas um dos rótulos do registro. Finalmente, é possível também remover todos os registros que possuam mais de um rótulo do conjunto de dados e trabalhar apenas com os que possuem um único rótulo.
-
-A transformação \emph{Conjunto Potência} (\textit{Label Powerset}) propõe tratar um conjunto de rótulos como um rótulo único. Na sua forma mais simples, o conjunto de rótulos de cada registro se torna um novo rótulo, se o mesmo conjunto existir em outro registro, assume-se o mesmo novo rótulo.
-Em conjuntos de dados que em que cada registro possui um conjunto muito distinto de rótulo, a transformação \textit{Label Powerset} acaba criando uma grande variedade de rótulos únicos, cada um com poucos registros.
-
-A variação \emph{Random k-Labelsets} \cite{Tsoumakas2007-wm} usa um \textit{ensemble} onde cada membro é treinado usando subconjuntos aleatório de rótulos como rótulos únicos.
-
-O problema da grande quantidade de rótulos gerados pelo \textit{Label Powerset} é atacado em uma variante chamada \textit{Pruned Sets}. Essa abordagem procura reforçar as correlações mais importantes entre os rótulos, melhorando a acurácia e diminuindo a complexidade. Apesar de mais simples que o RAkEL, sua performance é ao menos equivalente \cite{Read2008-bt}.
-
-Outra variação do \textit{Label Powerset}, chamada \textit{Ranking by Pairwise Comparison}, procura estabelecer correlações entre os rótulos dois a dois. Essa correlação é uma preferência de um rótulo sobre o outro, juntando-se todos os pares de preferências de um registro é possível criar uma ordenação dos rótulos, indo do de maior preferência até o de menor preferêcia. Elas são usadas para se criar uma ordenação multirrótulos. Cada par de rótulos possível é transformado em um único rótulo e treinado em um classificador, um algoritmo depois é responsável por unir os resultados \cite{Hullermeier2008-co}.
-
-A ordenação da abordagem anterior é transformada em classificação multirrótulo em \cite{Furnkranz2008-rf}. O artifício usado é introduzir um rótulo virtual, sem significado, em todos os registros do conjunto de dados. O ponto onde esse rótulo virtual aparece no conjunto de rótulos predito é o ponto de corte entre os rótulos relevantes e os irrelevantes.
-
-Uma variação do \textit{Ranking by Pairwise Comparison}, mas usando perceptrons ao invés de classificadores binários pode ser visto em \cite{Mencia2008-rh}.
-
-A classificação por \emph{Relevância Binária} (\textit{Binary Relevance}) consiste em usar um \textit{ensemble} com um classificador binário “presente/ausente” para cada rótulo. Os dois trabalhos anteriores também podem ser encarados como aplicações de Relevância Binária.
-
-Essa abordagem tem dificuldades quando existe um grande número de rótulos diferentes, apesar do crescimento de número de classificadores necessários ser linear. Como são treinados apenas com um rótulo, também não são capazes de aproveitar as correlações entre eles na classificação. A proposta em \cite{Hullermeier2008-co} minimiza esse efeito, mas aumenta o número de classificadores necessários exponencialmente.
-
-Essa transformação também é trabalhada em \cite{Tsoumakas2009-ex} usando uma pilha de classificadores para explorar as correlações entre os rótulos.
-
-[TODO: Citar (UEDA; SAITO, 2002)\cite{Ueda2002-gd} com breve explicação. Propõem um método chamado Parametric Mixture Model para classificador binário]
-
-Em (CESA-BIANCHI; GENTILE; ZANIBONI, 2006) \cite{Cesa-Bianchi2006-fk} é apresentado um algoritmo online que usa Relevância Binária em uma hierarquia de rótulos. O mesmo trabalho ainda define uma função de perda hierárquica (hierarchical loss function).
-
-[TODO: Explicar (DEMBCZYŃSKI et al., 2012)\cite{Dembczynski2012-tv} e (TAI; LIN, 2012)\cite{Tai2012-xa} que também exploram as correlações entre rótulos para melhorar a classificação por Binary Relevance. Verificar também (ZHANG; ZHANG, 2010)\cite{Zhang2010-ee}. Relacionar também com (ESULI; FAGNI; SEBASTIANI, 2008) \cite{Esuli2008-on} que trabalha com hierarquia de rótulos, mas adaptando algoritmos]
-
-[TODO: Verificar se vale a pena citar (CHARTE et al., 2012)\cite{Charte2012-tw} que propõe redução do número de rótulos através de regras de associação].
-
-\subsection{Adaptação do Algoritmo}\label{subsec:adaptacao}
-
-A adaptação do algoritmo consiste em modificar algoritmos usados em classificação de rótulo único para que trabalhem com problemas multirrótulo \cite{Tsoumakas2007-cw}.
-
-Árvores de decisão C4.5 foram adaptadas para o multirrótulo em \cite{Clare2001-tq}. Nele, as folhas da árvore aceitam mais de um rótulo e a fórmula de entropia também foi modificada para o problema.
-
-Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
-
-Evoluindo esse trabalho, \cite{De_Comite2003-lg}, propõe o \textit{ADTboost.MH} que adapta o \textit{AdaBoot.MH} para possibilitar trabalhar simultaneamente com dados discretos, contínuos e textuais. As modificações nas árvores de decisão desse algoritmo também procuram facilitar a compreensão da classificação por humanos.
-
-Em \cite{McCallum1999-iz} um classificador bayesiano para classificar os textos com multirrótulos, associando cada rótulo a uma distribuição de palavras, também facilitando a compreensão da classificação.
-
-Nessa mesma linha de compreensão do resultado do algoritmo, \cite{Streich2008-vu} assume que os rótulos do conjunto de dados são fornecidos por fontes diferentes e mede a contribuição de cada uma na rotulação.
-
-Uma avaliação de padrões de coocorrência de rótulos é feita em \cite{Ghamrawi2005-fw} usando \textit{Conditional Random Fields} \cite{Lafferty2001-ov}. São apresentados dois métodos: 
-
-\begin{itemize}
-	\item \textit{Collective Multi-Label Classifier} traça as correlações entre pares de rótulos;
-	\item \textit{Collective Multi-Label with Features Classifier} correlaciona pares de rótulos a atributos.	
-\end{itemize}
-
-Ambos os métodos remetem a \cite{Hullermeier2008-co}, mas usando adaptação de algoritmo ao invés de transformação do problema.
-
-Já o algoritmo de backpropagation é adaptado em \cite{Zhang2006-vf} com o nome de BP-MLL (\textit{BackPropagation - Multi Label Learning}).
-
-Ainda na categoria, \cite{Crammer2003-su} propõe uma família de métodos para treinamento online baseados em perceptrons para ordenação multirrótulo.
-
-Em \cite{Elisseeff2001-lp} é feita uma abordagem inspirada em \textit{Support Vector Machine} que tenta controlar a complexidade do classificador enquanto minimiza o Ranking Loss.
-
-Ensembles de \textit{Support Vector Machines} também são utilizadas em \cite{Godbole2004-su} para classificação multirrótulo. No mesmo trabalho, as coocorrências e sobreposições de rótulos são aproveitados para melhorar os resultados.
-
-Uma série de algoritmos baseia-se em k-vizinhos próximos. \cite{Zhang2007-id}, \cite{Luo2005-ac},\cite{Wieczorkowska2006-am}, \cite{Spyromitros2008-rs}, usam todos o mesmo algoritmo base, mas diferenciam-se na maneira como agregam os rótulos para formar o conjunto predito.
- 
-\textit{Multi-class, Multi-label Associative Classification} (MMAC) de \cite{Thabtah2004-vz} fornece uma alternativa na classificação multirrótulo usando regras de associação. Os rótulos são considerados de acordo com o suporte das regras.
-
-Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão \textit{lazy} que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
-
-\section{Referencial Teórico}\label{sec:refteo}
-
-No aprendizado supervisionado a tarefa mais comum é encontrar um único rótulo que  caracterize um vetor de atributos (aqui chamado de \emph{registro}). O aprendizado multirrótulo também é supervisionado, porém procura encontrar o \emph{conjunto} de rótulos associado a um registro. Nesse trabalho, foi adotado o termo "aprendizado" ao invés de classificação pois essa área estuda tanto o aprendizado de funções de classificação quanto de ordenação\cite{Zhang2014-be}.
-
-A classificação multirrótulo consiste em encontrar o conjunto de rótulos associados a um registro, já a ordenação multirrótulo se preocupa em achar uma ordem para os rótulos de acordo com a probabilidade do rótulo realmente servir para o registro, no entanto sem estabelecer um subconjunto. A classificação usando um único rótulo pode ser vista como um caso particular da classificação multirrótulo.
-
-Existem vários problemas reais em que é natural o uso de mais de um rótulo. Por exemplo, na classificação de textos, uma reportagem sobre o Oriente Médio pode ser classificada como jornalismo, política ou árabe, entre outros rótulos. Uma fotografia qualquer pode ter múltiplos elementos como um barco, o mar e montanhas ao fundo e cada um desses elementos pode ser considerado um rótulo.
-
-\subsection{Classificação e Ordenação Multirrótulo}\label{subsec:classord}
-
-A tarefa de aprendizado multirrótulo pode ser divida em dois tipos principais, dependendo da estratégia para abordá-la \cite{Tsoumakas2009-vw}. A primeira abordagem consiste em transformá-la em um problema de classificação de rótulo único, para o qual já existe extensa literatura e estudo. A segunda abordagem se apropria de algoritmos usados na classificação de rótulos únicos e os adapta para que sejam capazes de lidar com múltiplos rótulos.
-
-\subsection{Ordens de Correlação}\label{subsec:ordcorr}
-
-Uma das características únicas da aprendizagem multirrótulo é que, em problema reais, rótulos costumam coocorrer ou seguir uma relação hierárquica. Por exemplo, uma imagem que possua o rótulo "prato" estará mais frequentemente associada com os rótulos "cozinha" ou "ingredientes" do que com rótulos como "praia" ou "areia". Estratégias que se aproveitam da correlação entre rótulos parecem ter melhor desempenho do que as que as ignoram \cite{Zhang2010-ee}.
- 
-É possível distinguir três tipos de estratégias quanto a correlação entre rótulos, de primeira, segunda ordem e de ordem superior.
-
-\subsubsection{Correlação de Primeira Ordem.} \label{subsec:corr1ordem}
-
-A correlação entre os rótulos não é explorada, a predição para cada rótulo é aprendida separadamente, ou seja, \emph{uma-a-uma}. O conjunto de rótulos predito para cada registro é uma união do resultado de cada aprendizado \cite{De_Carvalho2009-yp}.
-
-As estratégias de cópia e seleção nas seções \ref{subsec:copia}, \ref{subsec:copiaponderada}, \ref{subsec:selecaominimo}, \ref{subsec:selecaomaximo} e \ref{subsec:selecaoaleatoria} mostram exemplos de transformações com correlações de primeira ordem.
-
-\subsubsection{Correlação de Segunda Ordem.} \label{subsec:corr2ordem}
-
-A correlação é explorada no formato \emph{dois-a-dois}. Cada par de rótulos é aprendido por um classificador diferente e o conjunto final é predito através da combinação entre os pares \cite{Hullermeier2008-co}.
-
-A estratégia de comparação entre duplas na seção \ref{subsec:comparacaoduplas} é usa correlação de segunda ordem.
-
-\subsubsection{Correlação de Ordem Superior.} \label{subsec:corrSordem}
-
-Explora-se a correlação entre conjuntos maiores de rótulos \cite{Read2008-bt}, entre subconjuntos aleatórios entre si \cite{Tsoumakas2007-cw} ou com relações de hierarquia entre rótulos \cite{Vens2008-yp}, \cite{Cesa-Bianchi2006-fk}, \cite{Esuli2008-on}.
-
-As estratégias RAkEL e \textit{Ensemble of Pruned Sets} nas seções \ref{subsec:rakel} e \ref{subsec:eps} são exemplos de correlação de ordem superior.
+A \textit{diversidade} mede a quantidade de conjuntos distintos de rótulos no problema $diver(D) = |L|$. Uma diversidade pequena em um conjunto grande de rótulos indica que alguns coocorrem com muita frequência, implicando um possível relacionamento entre eles.
 
 \section{Transformação do Problema}\label{sec:transprob}
 
@@ -645,6 +547,22 @@ Se a cardinalidade for próxima de 1 essa técnica pode ser apropriada, embora o
 
 Com cardinalidades mais altas, esse método pode remover uma quantidade significativa de registros.
 
+\subsection{Relevância Binária} \label{subsec:relevanciabinaria}
+
+As estratégias de transformação usam, em grande parte, um \textit{ensemble} de classificadores binários \cite{Zhang2014-be}. Variações da estratégia descrita aqui são base para várias outras mais elaboradas. Para problemas multiclasse, essa estratégia é conhecida como \textit{one-vs-all} ou \textit{one-vs-rest}.
+
+Na sua forma mais simples, cada classificador é treinado para identificar uma única ocorrência do rótulo. No conjunto de treinamento, se o rótulo existe no registro, recebe o valor 1, caso contrário, recebe -1 (ou 0, dependendo da estratégia).
+
+\begin{align*}
+\mathcal{T}_k& = \{ (\vec{x}, trans(Y_i, y_k)) | 1 \leq i \leq n \} \\
+\text{onde } trans(Y_i, y_k) &= \begin{cases}
+				 				  +1, \text{se $y_k \in Y_i$}\\
+								  -1, \text{caso contrário.}
+			  				    \end{cases}
+\end{align*}
+
+O conjunto resposta é formado por todos os rótulos em que seus classificadores responderam positivamente. Como nem o treinamento, nem a votação, levam em conta a relação entre rótulos, ela é uma estratégia com \textit{correlação de primeira ordem} (seção \ref{subsec:corr1ordem}).
+
 \subsection{Transformação por Conjunto Potência (\textit{Label Powerset})} \label{subsec:conjuntopotencia}
 
 Na sua versão mais simples, essa estratégia transforma cada conjunto possível de rótulos em um único rótulo novo. Por exemplo, o conjunto de rótulos $\mathcal{Y} = \{a, b, c\}$ se transforma nos rótulos $\mathcal{Y'} = \{a, b, c, ab, bc, ac, abc\}$. O número de classes geradas dessa maneira é $2^q$.
@@ -681,13 +599,13 @@ Essa estratégia procura resolver os problemas da \textit{transformação por co
 
 Parte dessa estratégia implica no uso de um \textit{ensemble} de classificadores. Cada classificador é treinado com um subconjunto de tamanho $k$ dos rótulos em $\mathcal{Y}$. O resultado desses classificadores é depois combinado para retornar os rótulos preditos.
 
-Para formalizar o problema, seja $L^k$ a família de conjuntos\footnote{Conjunto de subconjuntos de tamanho $k$.} sobre $\mathcal{Y}$ formada por todos o conjuntos de tamanho $k$ possíveis de rótulos do problema. $L^k_i$ é o \textit{i-ésimo} conjunto de rótulos de $L^k_i$, então  $L^k_i \subseteq \mathcal{Y}, |L^k_i| = k$.
+Seja $L^k$ a família de conjuntos\footnote{Conjunto de subconjuntos de tamanho $k$.} sobre $\mathcal{Y}$ formada por todos o conjuntos de tamanho $k$ possíveis de rótulos do problema. $L^k_i$ é o \textit{i-ésimo} conjunto de rótulos de $L^k$, então  $L^k_i \subseteq \mathcal{Y} \wedge |L^k_i| = k$.
 
 É treinada uma quantidade arbitrária de classificadores\footnote{São sugeridos $2q$ classificadores no artigo original \cite{Tsoumakas2007-wm}.}, cada um com um conjunto aleatoriamente extraído de $L^k$.
 
 Para a montagem da resposta do \textit{ensemble}, é feita uma votação somente entre os classificadores em que o rótulo fez parte de seu treinamento, se a proporção de classificadores positivos for maior que um certo limite\footnote{No artigo original o valor recomendado é 0,5, ou seja, metade dos classificadores.}, então o rótulo é adicionado ao conjunto resposta.
 
-O RAkEL ainda possui problemas quando o conjunto de rótulos é muito grande, e certamente precisa de adaptações se a diversidade dos conjuntos for pequena. Nesse cenário, a maior parte dos conjuntos aleatoriamente extraídos não encontrará registros para classificar. Se $L^k$ for restrito apenas aos conjunto de rótulos presentes nos registros, esse problema é desaparece.
+O RAkEL ainda possui problemas quando o conjunto de rótulos é muito grande, e certamente precisa de adaptações se a diversidade dos conjuntos for pequena. Nesse cenário, a maior parte dos conjuntos aleatoriamente extraídos não encontrará registros para classificar. Se $L^k$ for restrito apenas aos conjunto de rótulos presentes nos registros, esse problema desaparece.
  
  
 \subsection{Comitê de Conjunto Potência Podado} \label{subsec:eps}
@@ -701,13 +619,94 @@ Essa estratégia é detalhada na aplicação do método na seção \ref{sec:apli
 
 \subsection{Ordenação por Comparação de Duplas} \label{subsec:comparacaoduplas}
 
-\subsection{Relevância Binária} \label{subsec:relevanciabinaria}
+Chamada de \textit{Ranking by Pairwise Comparison} \cite{Hullermeier2008-co}, essa estratégia deriva da \textit{Pairwise Classification} para problemas multiclasse. Ela compara os rótulos dois a dois para criar como resposta uma \textit{ordem} entre eles ao invés de uma classificação. É portanto um estratégia de ordenação multirrótulo que se baseia em correlações de segunda ordem (seção \ref{subsec:corr2ordem}).
 
-[TODO Desculpe, mas ainda não acabei de copiar o conteúdo do outro documento, Professor! Estou trabalhando nisso :p]
+Para isso, são criados $\frac{q(q - 1)}{2}$ classificadores binários, cada um comparando dois rótulos distintos de $\mathcal{Y}$.
 
-\section{Adaptação do Problema}
+Cada classificador $\mathcal{B}$ aprende a ordem de preferência entre dois rótulos. Dados dois rótulos $y_a \neq y_b \in \mathcal{Y}$, sua ordem para o registro $\vec{x}$ é representada como $y_a \succ_x y_b$ ($y_a$ é preferível sobre $y_b$ no registro $\vec{x}$). O classificador deve responder 1 se $y_a \succ_x y_b$ e 0 se $y_b \succ_x y_a$.
 
-\section{Métrica de Avaliação}
+No conjunto de treinamento $\mathcal{T}_{a,b}$ de cada classificador $\mathcal{B}_{a,b}$ são removidos os registros para os quais não se pode estabelecer uma preferência entre os rótulos, ou seja, se ambos estiverem presentes no registro ele não é considerado no treinamento, idem se ambos os rótulos estiverem ausentes.
+
+\begin{align*}
+\mathcal{T}_{a,b} = \{(\vec{x}_i, Y_i) | (y_a \in Y_i \wedge y_b \notin Y_i) \vee (y_a \notin Y_i \wedge y_b \in Y_i)\}
+\end{align*}
+
+A montagem da ordem de rótulos é feita pela soma de votos dos classificadores. Quanto mais classificadores derem preferência a um rótulo sobre os outros, mais acima na ordem ele estará.
+
+Essa estratégia pode ser refinada para transformar a ordenação em classificação \cite{Furnkranz2008-rf}. Nela, um rótulo virtual $y_v$ é inserido em todos os conjuntos de treinamento. Dessa maneira, esse rótulo virtual se torna um \textit{ponto de corte artificial} entre rótulos relevantes e irrelevantes. Para isso ele é inserido de forma que $y_i \succ_x y_v$ se $y_i \in Y_i$ e $y_v \succ_x y_j$ se $y_j \notin Y_i$.
+
+Para uma grande conjunto de rótulos esse método se torna muito custoso, porém ele tende a diminuir o problema de desbalanceamento de classes que ocorre nas estratégias que utilizam \textit{one-vs-rest}.
+
+\subsection{XXX}
+
+Em (CESA-BIANCHI; GENTILE; ZANIBONI, 2006) \cite{Cesa-Bianchi2006-fk} é apresentado um algoritmo online que usa Relevância Binária em uma hierarquia de rótulos. O mesmo trabalho ainda define uma função de perda hierárquica (hierarchical loss function).
+
+\section{Adaptação do Algoritmo}\label{sec:adaptacao}
+
+A adaptação do algoritmo consiste em modificar algoritmos usados em classificação de rótulo único para que trabalhem com problemas multirrótulo \cite{Tsoumakas2007-cw}.
+
+\subsection{TODO Árvores de decisão}
+
+Árvores de decisão C4.5 foram adaptadas para o multirrótulo em \cite{Clare2001-tq}. Nele, as folhas da árvore aceitam mais de um rótulo e a fórmula de entropia também foi modificada para o problema.
+
+\subsection{K-Vizinhos Próximos Multirrótulo}\label{sec:todo-k-vizinhos-próximos}
+
+Vários algoritmos para aprendizado multirrótulo são baseados no método de k-vizinhos próximo (\textit{k-Nearest Neighbors}). Todos partem do mesmo princípio de posicionar os registros em um espaço vetorial e procurar os rótulos para resposta em seus vizinhos mais chegados.
+
+O que diferencia cada algoritmo é, na verdade, a forma como os rótulos são agregados para se formar uma resposta. O algoritmo ML-kNN \cite{Zhang2007-id} usa probabilidade \textit{bayesiana} para selecionar os rótulos.
+
+Considere $N(\vec{x})$ como o conjunto de registros com $k$ vizinhos próximos a $\vec{x}$. $C_{\vec{x}, j}$ é a quantidade de vizinhos de $\vec{x}$ que contém o rótulo $y_j$.
+
+\begin{align*}
+C_{\vec{x}, j} = |\{ (\vec{x}, Y) | y_j \in Y \}|
+\end{align*}
+
+O rótulo ser ou não atribuído a $\vec{x}$ depende de duas probabilidades. $R_{\vec{x},j}$ representa o evento de $y_j$ ser um rótulo de $\vec{x}$, inversamente, $\neg R_{\vec{x}, j}$ indica que o rótulo não pertence a $\vec{x}$. Sendo $P(R_{\vec{x}, j} | C_{\vec{x}, j})$ a probabilidade de $y_j$ pertencer a $\vec{x}$ dado a quantidade de seus vizinhos que contenham o mesmo rótulo e $P(\neg R_{\vec{x}, j} | C_{\vec{x}, j})$ a probabilidade de $\vec{x}$ \textit{não} conter o rótulo nas mesmas condições, o conjunto dos rótulos $Y$ a ser atribuído ao registro é dado por:
+
+\begin{align*}
+Y &= \{ y_j | Pr_{\vec{x}, j} > 1, 1 \leq j \leq q \} \\
+\text{onde } Pr_{\vec{x}, j} &= \frac{P( R_{\vec{x}, j} | C_{\vec{x}, j})}{P(\neg R_{\vec{x}, j} | C_{\vec{x}, j})}
+\end{align*}
+
+Esse é um método com correlação de primeira ordem (seção \ref{subsec:corr1ordem}) já que avalia cada rótulo individualmente. Outros algoritmos procuram usar correlações de ordem mais altas, como no método de Younes \textit{et al}. \cite{Younes2011-sf}.
+
+\subsection{TODO Regras de Associação}
+
+\textit{Multi-class, Multi-label Associative Classification} (MMAC) de \cite{Thabtah2004-vz} fornece uma alternativa na classificação multirrótulo usando regras de associação. Os rótulos são considerados de acordo com o suporte das regras.
+
+Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão \textit{lazy} que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
+
+\subsection{TODO Support Vector Machine}
+
+Em \cite{Elisseeff2001-lp} é feita uma abordagem inspirada em \textit{Support Vector Machine} que tenta controlar a complexidade do classificador enquanto minimiza o Ranking Loss.
+
+Ensembles de \textit{Support Vector Machines} também são utilizadas em \cite{Godbole2004-su} para classificação multirrótulo. No mesmo trabalho, as coocorrências e sobreposições de rótulos são aproveitados para melhorar os resultados.
+
+
+
+\subsection{TODO AdaBoost}
+Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
+
+Evoluindo esse trabalho, \cite{De_Comite2003-lg}, propõe o \textit{ADTboost.MH} que adapta o \textit{AdaBoot.MH} para possibilitar trabalhar simultaneamente com dados discretos, contínuos e textuais. As modificações nas árvores de decisão desse algoritmo também procuram facilitar a compreensão da classificação por humanos.
+
+\subsection{TODO Bayes}
+
+Em \cite{McCallum1999-iz} um classificador bayesiano para classificar os textos com multirrótulos, associando cada rótulo a uma distribuição de palavras, também facilitando a compreensão da classificação.
+
+\subsection{TODO Conditional Random Fields}
+Uma avaliação de padrões de coocorrência de rótulos é feita em \cite{Ghamrawi2005-fw} usando \textit{Conditional Random Fields} \cite{Lafferty2001-ov}. São apresentados dois métodos: 
+
+\begin{itemize}
+	\item \textit{Collective Multi-Label Classifier} traça as correlações entre pares de rótulos;
+	\item \textit{Collective Multi-Label with Features Classifier} correlaciona pares de rótulos a atributos.	
+\end{itemize}
+
+\subsection{TODO Backpropagation}
+
+Já o algoritmo de backpropagation é adaptado em \cite{Zhang2006-vf} com o nome de BP-MLL (\textit{BackPropagation - Multi Label Learning}).
+
+
+\section{TODO Métrica de Avaliação}
 
 \section{Método Aplicado} \label{sec:justificativa}
 
@@ -872,6 +871,9 @@ Outro ponto de atenção é que a distribuição dos resultados não segue a cur
 	\item Rodar cross-validation com todos os dados, atualizar a tabela e refazer os gráfico. É improvável um resultado muito diferente, então (espero) que eu não tenha que modificar o texto.
 	\item Melhorar os gráficos. Achei que ficaram muito feios =/
 	\item Observação: os resultados são intuitivamente muito bons mesmo quando a precisão não parece boa. Isso ainda precisa ser confirmado.
+	\item Citar (UEDA; SAITO, 2002) com breve explicação. Propõem um método chamado Parametric Mixture Model para classificador binário.
+	\item Explicar (DEMBCZYŃSKI et al., 2012) e (TAI; LIN, 2012) que também exploram as correlações entre rótulos para melhorar a classificação por Binary Relevance. Verificar também (ZHANG; ZHANG, 2010). Relacionar também com (ESULI; FAGNI; SEBASTIANI, 2008) que trabalha com hierarquia de rótulos, mas adaptando algoritmos
+	\item Verificar se vale a pena citar (CHARTE et al., 2012) que propõe redução do número de rótulos através de regras de associação].
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
