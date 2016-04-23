@@ -628,7 +628,7 @@ Cada classificador $\mathcal{B}$ aprende a ordem de preferência entre dois rót
 No conjunto de treinamento $\mathcal{T}_{a,b}$ de cada classificador $\mathcal{B}_{a,b}$ são removidos os registros para os quais não se pode estabelecer uma preferência entre os rótulos, ou seja, se ambos estiverem presentes no registro ele não é considerado no treinamento, idem se ambos os rótulos estiverem ausentes.
 
 \begin{align*}
-\mathcal{T}_{a,b} = \{(\vec{x}_i, Y_i) | (y_a \in Y_i \wedge y_b \notin Y_i) \vee (y_a \notin Y_i \wedge y_b \in Y_i)\}
+	\mathcal{T}_{a,b} = \{(\vec{x}_i, Y_i) | (y_a \in Y_i \wedge y_b \notin Y_i) \vee (y_a \notin Y_i \wedge y_b \in Y_i)\}
 \end{align*}
 
 A montagem da ordem de rótulos é feita pela soma de votos dos classificadores. Quanto mais classificadores derem preferência a um rótulo sobre os outros, mais acima na ordem ele estará.
@@ -645,9 +645,42 @@ Em (CESA-BIANCHI; GENTILE; ZANIBONI, 2006) \cite{Cesa-Bianchi2006-fk} é apresen
 
 A adaptação do algoritmo consiste em modificar algoritmos usados em classificação de rótulo único para que trabalhem com problemas multirrótulo \cite{Tsoumakas2007-cw}.
 
-\subsection{TODO Árvores de decisão}
+\subsection{Árvores de decisão}
 
-Árvores de decisão C4.5 foram adaptadas para o multirrótulo em \cite{Clare2001-tq}. Nele, as folhas da árvore aceitam mais de um rótulo e a fórmula de entropia também foi modificada para o problema.
+A adaptação de árvores de decisão para classificação multirrótulo se dá em dois pontos, na modificação da função de entropia e na decisão de quais rótulo atribuir ao registro \cite{Clare2001-tq}.
+
+Árvores de decisão trabalham dividindo o conjunto de treinamento de acordo com uma função de ganho de informação, o conjunto vai sendo dividido recursivamente iniciando pelo maior ganho até que algum critério de parada seja atingido. A função de ganho de informação é a diferença de entropia entre o conjunto restante de registros e a soma ponderada da entropia dos subconjuntos que causam a divisão.
+
+\begin{align*}
+	ig(T, A) &= entr(T) - \sum_{v \in A} \frac{|T_v|}{|T|} \cdot entr(T_v)
+\end{align*}
+
+Onde $A$ é o atributo sendo considerado, $T$ é o conjunto de treinamento sendo particionado e $T_v$ é o subconjunto de de $T$ com valor $v$ para o atributo $A$.
+
+Em problemas multiclasse, a função de entropia $entr$ é dada por:
+
+\begin{align*}
+	entr(T) = -\sum_{i = 1}^{q} p(y_i) \log p(y_i)
+\end{align*}
+
+Onde $p(y_i)$ é a frequência relativa do rótulo $y$ nesse conjunto.
+
+Para o problema multirrótulo, essa função é modificada para \cite{Clare2001-tq}:
+
+\begin{align*}
+	entr(T) &= -\sum_{i = 1}^{m} p(Y_i) \log p(Y_i) + (\bar{p}(Y_i) \log \bar{p}(Y_i)) \\
+	\text{onde } m &= |T| \\
+	p(Y_i) &= \frac{1}{m}\sum_{j = 1}^{m} \left| \{y_j | y_j \in Y_i \} \right| \\
+	\bar{p}(Y_i) &= 1 - p(Y_i)
+\end{align*}
+
+Onde $p(y_i)$ é a frequência relativa do rótulo $y_i$ no conjunto $T$.
+
+Para decidir os rótulos para um novo registro, percorre-se a árvore com ele até se chegar a uma das folhas. Cada folha contém um dos subconjuntos resultantes do particionamento, os rótulos para esse novo registro são aqueles que aparecem em mais da metade dos registros do conjunto.
+
+\begin{align*}
+	Y = \{ y_j | p(Y_i) > 0,5; 1 \leq i \leq m \}
+\end{align*}
 
 \subsection{K-Vizinhos Próximos Multirrótulo}\label{sec:todo-k-vizinhos-próximos}
 
@@ -670,11 +703,46 @@ Y &= \{ y_j | Pr_{\vec{x}, j} > 1, 1 \leq j \leq q \} \\
 
 Esse é um método com correlação de primeira ordem (seção \ref{subsec:corr1ordem}) já que avalia cada rótulo individualmente. Outros algoritmos procuram usar correlações de ordem mais altas, como no método de Younes \textit{et al}. \cite{Younes2011-sf}.
 
-\subsection{TODO Regras de Associação}
+\subsection{Aprendizado de Regras de Associação}
 
-\textit{Multi-class, Multi-label Associative Classification} (MMAC) de \cite{Thabtah2004-vz} fornece uma alternativa na classificação multirrótulo usando regras de associação. Os rótulos são considerados de acordo com o suporte das regras.
+As regras de associação procuram criar um sequência de relações onde a presença de um conjunto de itens implica na presença de um terceiro item. Por exemplo, a regra de associação $\{ cerveja, carne \} \Rightarrow \{ churrasco \}$ diz que, se existe a presença de \enquote{cerveja} e \enquote{carne}, pode-se pressupor a presença de \enquote{churrasco}.
 
-Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão \textit{lazy} que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
+O algoritmo de Classificação Associativa Multirrótulo Multiclasse (\textit{Multi-class, Multi-label Associative Classification} [MMAC]) \cite{Thabtah2004-vz} modifica a geração de regras de associação para lidar com problemas de classificação multirrótulo.
+
+As regras, nesse caso, associam conjuntos de atributos a conjuntos de rótulos.
+Dado um registro, uma regra $r$ retorna o conjunto de rótulos resultantes de sua aplicação ou o conjunto vazio se a regra não puder ser aplicada $r : 2^\mathcal{X} \to 2^\mathcal{Y}$ sendo $2^\mathcal{X}$ o conjunto com todos os atributos possíveis de $\mathcal{X}$. 
+
+$R$ é o conjunto de regras de associação $R = \{ r_1, r_2, \dots, r_m \}$. Uma regra específica $r_j$ possui o seguinte resultado:
+
+\begin{align*}
+	r_j(\vec{x}_i) &= \begin{cases}
+						 Y_i \subseteq \mathcal{Y}, & \text{se $r_j$ puder ser aplicado,} \\
+			             \emptyset, & \text{caso contrário.}
+		            \end{cases}
+\end{align*}
+
+No MMAC, inicialmente, usa-se a estratégia de \textit{cópia} (seção \ref{subsec:copia}) para se criar o conjunto de treinamento $\mathcal{T}$. A partir daí, as regras são geradas através de aplicações sucessivas do algoritmo, a cada passada, os registros que são atendidos pelas regras geradas são removidos de $\mathcal{T}$ e o algoritmo é novamente aplicado no conjunto restante até que não haja frequência suficiente nele para que novas regras sejam geradas.
+
+Os critérios para geração de regras são baseados nas métricas de \textit{confiança} e \textit{suporte}. Suporte $sup(r_j, \mathcal{T})$ é a proporção de registros em $\mathcal{T}$ que a regra $r_j$ pode ser aplicada, confiança $conf(r_j, y_i, \mathcal{T})$ é a proporção de registros em $\mathcal{T}$ em que $r_j$ que pode ser aplicada e resulta corretamente em um rótulo $y_h$.
+
+\begin{align*}
+	sup(r_j, \mathcal{T}) &= \frac{|\{ \vec{x}_i | r_j(\vec{x}_i) \neq \emptyset, 1 \leq i \leq |\mathcal{T}| \}|}{|\mathcal{T}|} \\
+	conf(r_j, y_h, \mathcal{T}) &= \frac{|\{ \vec{x}_i | y_h \in r_j(\vec{x_i}), 1 \leq i \leq |\mathcal{T}| \}|}{sup(r_j, \mathcal{T})} 
+\end{align*}
+
+Quaisquer regras que passem pelos parâmetros de suporte mínimo $minSup$ e confiança mínima $minConf$ definidos no problema são adicionados ao conjunto de regras resultante.
+
+\begin{align*}
+	R = \{ r | sup(r, \mathcal{T}) \geq minSup \wedge conf(r, y_i, \mathcal{T}) \geq minConf, 1 \leq i \leq q \}
+\end{align*}
+
+Após a geração do conjunto regras é feita uma etapa de junção, regras com atributos idênticos mas diferentes rótulos como resultado são unidas em uma única regra que retorna ambos os rótulos.
+
+As regras também são colocadas em ordem de importância segundo seus valores de confiança e suporte. Para classificar um registro novo, a primeira regra puder ser aplicada classifica o registro.
+
+Usando também regras de associação, \cite{Veloso2007-el} implementam uma versão \textit{lazy} do algoritmo que aproveita os relacionamentos entre os rótulos e desempenha bem para conjuntos de dados pequenos.
+
+[DÚVIDAS: Essa é uma das partes que tive mais dificuldades. A notação matemática me parece estar mais complexa do que o necessário, o texto me pareceu difícil de acompanhar. O paper original chama de \enquote{suporte} o que encontrei em outros lugares como \enquote{confiança}, o que me deixou ainda mais confuso. Acho que preciso muito de ajuda nessa parte.]
 
 \subsection{TODO Support Vector Machine}
 
