@@ -637,9 +637,6 @@ Essa estratégia pode ser refinada para transformar a ordenação em classifica�
 
 Para uma grande conjunto de rótulos esse método se torna muito custoso, porém ele tende a diminuir o problema de desbalanceamento de classes que ocorre nas estratégias que utilizam \textit{one-vs-rest}.
 
-\subsection{XXX}
-
-Em (CESA-BIANCHI; GENTILE; ZANIBONI, 2006) \cite{Cesa-Bianchi2006-fk} é apresentado um algoritmo online que usa Relevância Binária em uma hierarquia de rótulos. O mesmo trabalho ainda define uma função de perda hierárquica (hierarchical loss function).
 
 \section{Adaptação do Algoritmo}\label{sec:adaptacao}
 
@@ -764,16 +761,8 @@ Dado $t(\vec{x})$ como uma função que retorna um número de corte para $\vec{x
 	Y = \{ y_j | \langle \vec{w}_j,\vec{x} \rangle + b_j > t(\vec{x}), 1 \leq j \leq q \}
 \end{align*}
 
-\subsection{TODO AdaBoost}
-Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
 
-Evoluindo esse trabalho, \cite{De_Comite2003-lg}, propõe o \textit{ADTboost.MH} que adapta o \textit{AdaBoot.MH} para possibilitar trabalhar simultaneamente com dados discretos, contínuos e textuais. As modificações nas árvores de decisão desse algoritmo também procuram facilitar a compreensão da classificação por humanos.
-
-\subsection{TODO Bayes}
-
-Em \cite{McCallum1999-iz} um classificador bayesiano para classificar os textos com multirrótulos, associando cada rótulo a uma distribuição de palavras, também facilitando a compreensão da classificação.
-
-\subsection{TODO Conditional Random Fields}
+\subsection{Campos Aleatórios Condicionais}
 Uma avaliação de padrões de coocorrência de rótulos é feita em \cite{Ghamrawi2005-fw} usando \textit{Conditional Random Fields} \cite{Lafferty2001-ov}. São apresentados dois métodos: 
 
 \begin{itemize}
@@ -781,7 +770,61 @@ Uma avaliação de padrões de coocorrência de rótulos é feita em \cite{Ghamr
 	\item \textit{Collective Multi-Label with Features Classifier} correlaciona pares de rótulos a atributos.	
 \end{itemize}
 
-\subsection{TODO Backpropagation}
+O texto a seguir detalha \textit{Collective Multi-label Classifier}. O algoritmo é baseado em \textit{Conditional Random Fields} que lida naturalmente com saídas multivariadas. Em linhas gerais, CRF calcula a probabilidade de ocorrência de um vetor de resultados com um vetor de atributos $p(\vec{u} | \vec{v})$ onde $\vec{u}$ é o vetor de resultados e $\vec{v}$ é o vetor de atributos. No caso de aprendizado multirrótulo, os atributos são o vetor $\vec{x}_i$ e para os resultados é necessário transformar $Y_i$ em um vetor. Isso é facilmente feito usando uma função de mapeamento que converte cada rótulo em -1 ou +1 se ele está presente ou não no registro.
+
+\begin{align*}
+	map(Y_i, y_j) &= \begin{cases}
+		1, & \text{se $y_j \in Y_i$} \\
+		-1, & \text{caso contrário}
+	\end{cases}
+\end{align*}
+
+Então, o vetor de rótulos associado ao registro $\vec{x_i}$ é:
+
+\begin{align*}
+&\vec{y_i} = \langle map(Y_i, y_1), map(Y_i, y_2), \dots, map(Y_i, y_j) \rangle \\
+&\text{para } 1 \leq j \leq q  
+\end{align*}
+
+Em resumo, o aprendizado multirrótulo usando CRF consiste me descobrir a distribuição de probabilidade $p(\vec{y} | \vec{x})$ condizente com os registros disponíveis, ou seja, dada uma \textit{informação parcial} (os registros), qual a distribuição que melhor se encaixa para eles.
+
+Para esse cálculo, usa-se o \textit{princípio da entropia máxima}. Ela assume que a melhor distribuição possível é aquele que maximiza a função de entropia da informação restrita pelas informações disponíveis.
+
+Aplicando-se o princípio da entropia máxima ao cálculo, chega-se a:
+
+\begin{align*}
+p(\vec{y} | \vec{x}) = \frac{\exp \left( \sum_{k \in \mathcal{K}} \lambda_k \cdot f_k(\vec{x}, \vec{y}) \right)}{\sum_{k \in \mathcal{K}} \lambda_k \cdot f_k(\vec{x}, \vec{y})}
+\end{align*}
+
+Onde $\lambda_k$ é cada parâmetro do conjunto de parâmetros $\Lambda = \{ \lambda_k \mid k \in \mathcal{K} \}$ e $\mathcal{K}$ é o conjunto de fatos dados (restrições).
+
+No algoritmo CML, o conjunto final de restrições $\mathcal{K}$ é a união de dois conjuntos distintos $\mathcal{K}_1$ e $\mathcal{K}_2$. 
+
+\begin{align*}
+	\mathcal{K}_1 &= \{ (l, j) \mid 1 \leq l \leq d, 1 \leq j \leq q \} \\
+	\mathcal{K}_2 &= \{ (j_1, j_2, b_1, b_2) \mid 1 \leq j_1 \leq j_2 \leq q, b1, b2 \in \{ -1, +1 \} \} \\
+	  \mathcal{K} &= \mathcal{K}_1 \cup \mathcal{K}_2
+\end{align*}
+
+$\mathcal{K}_1$ define $d \cdot q$ restrições onde $f_k(\vec{x}, \vec{y}) = x_l \cdot | \{ y_j \mid y_j = 1\} |$ e $\mathcal{K}_2$ define $4 \cdot {q \choose 2}$ restrições onde $f_k(\vec{x}, \vec{y}) = |\{ y_{j1} \mid y_{j1} = b_1 \}| \cdot |\{ y_{j2} \mid y_{j2} = b_2 \}|$.
+
+Finalmente, para um registro novo $\vec{x}$, o conjunto de rótulos $Y$ a ser predito é:
+
+\begin{align*}
+	Y = \arg \max_{\vec{y}} p(\vec{y} | \vec{x})
+\end{align*}
+
+Calcular o máximo para todos os vetores possíveis $\vec{y}$ é impraticável se o conjunto de rótulos for grande, uma alternativa viável é restringi-lo aos conjuntos de rótulos que aparecem no problema.
+
+\subsection{Outras adaptações de algoritmos}
+
+A lista de adaptações é extensa, abaixo são listados alguns outros trabalhos relevantes.
+
+Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
+
+Evoluindo esse trabalho, \cite{De_Comite2003-lg}, propõe o \textit{ADTboost.MH} que adapta o \textit{AdaBoot.MH} para possibilitar trabalhar simultaneamente com dados discretos, contínuos e textuais. As modificações nas árvores de decisão desse algoritmo também procuram facilitar a compreensão da classificação por humanos.
+
+Em \cite{McCallum1999-iz} um classificador bayesiano para classificar os textos com multirrótulos, associando cada rótulo a uma distribuição de palavras, também facilitando a compreensão da classificação.
 
 Já o algoritmo de backpropagation é adaptado em \cite{Zhang2006-vf} com o nome de BP-MLL (\textit{BackPropagation - Multi Label Learning}).
 
