@@ -744,13 +744,25 @@ Usando também regras de associação, \cite{Veloso2007-el} implementam uma vers
 
 [DÚVIDAS: Essa é uma das partes que tive mais dificuldades. A notação matemática me parece estar mais complexa do que o necessário, o texto me pareceu difícil de acompanhar. O paper original chama de \enquote{suporte} o que encontrei em outros lugares como \enquote{confiança}, o que me deixou ainda mais confuso. Acho que preciso muito de ajuda nessa parte.]
 
-\subsection{TODO Support Vector Machine}
+\subsection{Máquina de Vetores de Suporte de Ordenação}
 
-Em \cite{Elisseeff2001-lp} é feita uma abordagem inspirada em \textit{Support Vector Machine} que tenta controlar a complexidade do classificador enquanto minimiza o Ranking Loss.
+O algoritmo Rank-SVM \cite{Elisseeff2001-lp} cria um conjunto de máquinas de vetores de suporte que ordena os rótulos. É treinado um classificador para cada rótulo em $\mathcal{Y}$. Seja o conjunto de classificadores $\mathcal{W} = \{ (\vec{w}_b, b_j) | 1 \leq j \leq q \}$, onde $\vec{w_j}$ é um vetor de pesos (\textit{weight-vector}) e $b_j$ é o \textit{bias} para o rótulo $y_j$.
 
-Ensembles de \textit{Support Vector Machines} também são utilizadas em \cite{Godbole2004-su} para classificação multirrótulo. No mesmo trabalho, as coocorrências e sobreposições de rótulos são aproveitados para melhorar os resultados.
+O aprendizado do algoritmo é feito levando-se em consideração pares de rótulos que pertencem e não pertencem ao conjunto de rótulos do registro. Dado o conjunto de rótulos $Y_i$ associado ao registro $\vec{x}_i$ e os rótulos $y_j \in Y_i$ e $y_k \notin Y_i$:
 
+\begin{align} \label{eq:svmdistancia}
+	\min_{(y_j, y_k)} \frac{\langle \vec{w}_j, \vec{x}_i \rangle + b_j - b_k}{\lVert \vec{w}_j - \vec{w}_k \rVert}
+\end{align}
 
+Na equação acima $\langle \vec{w}_j, \vec{x}_i \rangle$ significa o produto interno de $\vec{w}_j$ e $\vec{x}_i$. O hiperplano que separa os registros entre os rótulos $(y_j, y_k)$ é definido pela equação que satisfaz $\langle \vec{w}_j, \vec{x}_i \rangle + b_j - b_k = 0$.  A equação \ref{eq:svmdistancia} retorna a menor distância, considerando o sinal, entre $\vec{x}_i$ e o hiperplano, em outras palavras, retorna a distância do rótulo mais próximo ao hiperplano.
+
+O problema a ser resolvido pelo classificador é o de maximizar a menor entre todas as distâncias de todos os registros. Idealmente essa distância é positiva, significando que a separação pode ser feita para todos os registros.
+
+Dado $t(\vec{x})$ como uma função que retorna um número de corte para $\vec{x}$, para retornar o conjunto resposta $Y$ para um novo registro $\vec{x}$:
+
+\begin{align*}
+	Y = \{ y_j | \langle \vec{w}_j,\vec{x} \rangle + b_j > t(\vec{x}), 1 \leq j \leq q \}
+\end{align*}
 
 \subsection{TODO AdaBoost}
 Duas propostas para \textit{Adaptative Boosting} com multirrótulo são feitas em \cite{Schapire2000-yt}. A primeira, \textit{AdaBoost.MH}, foi adaptada para diminuir o \textit{Hamming Loss}. Enquanto que a \textit{AdaBoost.MR} tenta encontrar qual hipótese coloca os rótulos corretos no topo da ordenação.
